@@ -8,6 +8,7 @@ pub struct State {
     pub config: wgpu::SurfaceConfiguration,
     pub size: winit::dpi::PhysicalSize<u32>,
     pub backend: wgpu::Backend,
+    update_counter: u32,
 }
 
 impl State {
@@ -44,6 +45,8 @@ impl State {
         };
         surface.configure(&device, &config);
 
+        let update_counter = 0;
+
         Self {
             surface,
             device,
@@ -51,6 +54,7 @@ impl State {
             config,
             size,
             backend,
+            update_counter,
         }
     }
 
@@ -68,11 +72,44 @@ impl State {
         false
     }
 
-    fn update(&mut self) {
-        todo!()
+    pub fn update(&mut self) {
+        self.update_counter += 1;
     }
 
-    fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
-        todo!()
+    pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
+        let texture = self.surface.get_current_texture()?;
+        let view = texture.texture.create_view(&wgpu::TextureViewDescriptor::default());
+        let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor{
+            label: Some("Render Encoder"),
+        });
+
+        {
+            let _render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                label: Some("Render Pass"),
+                color_attachments: &[
+                    wgpu::RenderPassColorAttachment {
+                        view: &view,
+                        resolve_target: None,
+                        ops: wgpu::Operations {
+                            load: wgpu::LoadOp::Clear(
+                                wgpu::Color {
+                                    r: 0.5,
+                                    g: 0.5,
+                                    b: (self.update_counter as f64).sin(),
+                                    a: 1.0,
+                                },
+                            ),
+                            store: true,
+                        },
+                    },
+                ],
+                depth_stencil_attachment: None,
+            });
+        }
+
+        self.queue.submit(std::iter::once(encoder.finish()));
+        texture.present();
+
+        Ok(())
     }
 }
