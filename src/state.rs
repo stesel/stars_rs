@@ -1,6 +1,9 @@
 use winit::event::WindowEvent;
 use winit::window::Window;
 
+#[cfg(debug_assertions)]
+use perf_meter::PerfMeter;
+
 pub struct State {
     pub surface: wgpu::Surface,
     pub device: wgpu::Device,
@@ -9,6 +12,8 @@ pub struct State {
     pub size: winit::dpi::PhysicalSize<u32>,
     pub backend: wgpu::Backend,
     update_counter: u32,
+    #[cfg(debug_assertions)]
+    perf_meter: PerfMeter,
 }
 
 impl State {
@@ -47,6 +52,9 @@ impl State {
 
         let update_counter = 0;
 
+        #[cfg(debug_assertions)]
+        let perf_meter = PerfMeter::new(1);
+
         Self {
             surface,
             device,
@@ -55,6 +63,8 @@ impl State {
             size,
             backend,
             update_counter,
+            #[cfg(debug_assertions)]
+            perf_meter,
         }
     }
 
@@ -68,12 +78,14 @@ impl State {
         }
     }
 
-    pub fn input(&mut self, event: &WindowEvent) -> bool {
+    pub fn input(&mut self, _event: &WindowEvent) -> bool {
         false
     }
 
     pub fn update(&mut self) {
         self.update_counter += 1;
+        #[cfg(debug_assertions)]
+        self.perf_meter.tick();
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
@@ -95,7 +107,7 @@ impl State {
                                 wgpu::Color {
                                     r: 0.5,
                                     g: 0.5,
-                                    b: (self.update_counter as f64).sin(),
+                                    b: (self.update_counter as f64 * 0.01_f64).sin(),
                                     a: 1.0,
                                 },
                             ),

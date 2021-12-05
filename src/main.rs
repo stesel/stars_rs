@@ -1,6 +1,3 @@
-use std::any::Any;
-use std::os::macos::raw::stat;
-use wgpu::SurfaceError;
 use winit::{
     event::*,
     event_loop::{ControlFlow, EventLoop},

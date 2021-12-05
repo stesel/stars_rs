@@ -13,3 +13,6 @@ env_logger = "0.9"
 log = "0.4"
 wgpu = "0.11"
 pollster = "0.2"
+
+[target."cfg(debug_assertions)".dependencies]
+perf_meter = { git = "https://github.com/stesel/perf_meter", branch = "master" }
