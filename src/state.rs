@@ -1,3 +1,4 @@
+use cgmath::num_traits::ToPrimitive;
 use winit::event::WindowEvent;
 use winit::window::Window;
 
@@ -11,6 +12,7 @@ pub struct State {
     pub config: wgpu::SurfaceConfiguration,
     pub size: winit::dpi::PhysicalSize<u32>,
     pub backend: wgpu::Backend,
+    cursor_position: winit::dpi::PhysicalPosition<f64>,
     update_counter: u32,
     #[cfg(debug_assertions)]
     perf_meter: PerfMeter,
@@ -41,6 +43,8 @@ impl State {
             None,
         ).await.unwrap();
 
+        let cursor_position = winit::dpi::PhysicalPosition { x: 0_f64 ,y: 0_f64 };
+
         let config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
             format: surface.get_preferred_format(&adapter).unwrap(),
@@ -62,6 +66,7 @@ impl State {
             config,
             size,
             backend,
+            cursor_position,
             update_counter,
             #[cfg(debug_assertions)]
             perf_meter,
@@ -79,6 +84,12 @@ impl State {
     }
 
     pub fn input(&mut self, _event: &WindowEvent) -> bool {
+        match _event {
+            WindowEvent::CursorMoved { position, .. } => {
+                self.cursor_position = *position;
+            },
+            _ => {},
+        }
         false
     }
 
@@ -105,9 +116,9 @@ impl State {
                         ops: wgpu::Operations {
                             load: wgpu::LoadOp::Clear(
                                 wgpu::Color {
-                                    r: 0.5,
-                                    g: 0.5,
-                                    b: (self.update_counter as f64 * 0.01_f64).sin(),
+                                    r: self.cursor_position.x / self.size.width.to_f64().unwrap_or(self.cursor_position.x),
+                                    g: self.cursor_position.y / self.size.height.to_f64().unwrap_or(self.cursor_position.y),
+                                    b: 0.0,
                                     a: 1.0,
                                 },
                             ),
