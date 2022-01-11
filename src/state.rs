@@ -1,5 +1,6 @@
+use std::ops::Range;
 use cgmath::num_traits::ToPrimitive;
-use winit::event::WindowEvent;
+use winit::event::{WindowEvent, KeyboardInput, ElementState, VirtualKeyCode};
 use winit::window::Window;
 
 #[cfg(debug_assertions)]
@@ -14,6 +15,8 @@ pub struct State {
     pub backend: wgpu::Backend,
     cursor_position: winit::dpi::PhysicalPosition<f64>,
     update_counter: u32,
+    space_pressed: bool,
+    render_pipeline: wgpu::RenderPipeline,
     #[cfg(debug_assertions)]
     perf_meter: PerfMeter,
 }
@@ -56,6 +59,55 @@ impl State {
 
         let update_counter = 0;
 
+        let space_pressed = false;
+
+        let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
+            label: Some("Shader"),
+            source: wgpu::ShaderSource::Wgsl(include_str!("shader.wgsl").into()),
+        });
+
+        let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+            label: Some("Render Pipeline Layout"),
+            bind_group_layouts: &[],
+            push_constant_ranges: &[],
+        });
+
+        let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+            label: Some("Render Pipeline"),
+            layout: Some(&render_pipeline_layout),
+            vertex: wgpu::VertexState {
+                module: &shader,
+                entry_point: "vs_main",
+                buffers: &[],
+            },
+            fragment: Some(wgpu::FragmentState {
+                module: &shader,
+                entry_point: "fs_main",
+                targets: &[{
+                    wgpu::ColorTargetState {
+                        format: config.format,
+                        blend: Some(wgpu::BlendState::REPLACE),
+                        write_mask: wgpu::ColorWrites::ALL,
+                    }
+                }],
+            }),
+            primitive: wgpu::PrimitiveState {
+                topology: wgpu::PrimitiveTopology::TriangleStrip,
+                strip_index_format: None,
+                front_face: wgpu::FrontFace::Ccw,
+                cull_mode: Some(wgpu::Face::Back),
+                polygon_mode: wgpu::PolygonMode::Fill,
+                clamp_depth: false,
+                conservative: false,
+            },
+            depth_stencil: None,
+            multisample: wgpu::MultisampleState {
+                count: 1,
+                mask: !0,
+                alpha_to_coverage_enabled: false,
+            },
+        });
+
         #[cfg(debug_assertions)]
         let perf_meter = PerfMeter::new(1);
 
@@ -68,6 +120,8 @@ impl State {
             backend,
             cursor_position,
             update_counter,
+            space_pressed,
+            render_pipeline,
             #[cfg(debug_assertions)]
             perf_meter,
         }
@@ -79,7 +133,6 @@ impl State {
             self.config.width = new_size.width;
             self.config.height = new_size.height;
             self.surface.configure(&self.device, &self.config);
-            println!("new size w: {}, h: {}", new_size.width, new_size.height)
         }
     }
 
@@ -87,6 +140,16 @@ impl State {
         match _event {
             WindowEvent::CursorMoved { position, .. } => {
                 self.cursor_position = *position;
+            },
+            WindowEvent::KeyboardInput {
+                input: KeyboardInput {
+                    state,
+                    virtual_keycode: Some(VirtualKeyCode::Space),
+                    ..
+                },
+                ..
+            } => {
+                self.space_pressed = *state == ElementState::Pressed;
             },
             _ => {},
         }
@@ -107,7 +170,7 @@ impl State {
         });
 
         {
-            let _render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("Render Pass"),
                 color_attachments: &[
                     wgpu::RenderPassColorAttachment {
@@ -128,6 +191,10 @@ impl State {
                 ],
                 depth_stencil_attachment: None,
             });
+
+            render_pass.set_pipeline(&self.render_pipeline);
+            let vertices: Range<u32> = if self.space_pressed { 0..4 } else { 0..3 };
+            render_pass.draw(vertices, 0..1);
         }
 
         self.queue.submit(std::iter::once(encoder.finish()));
