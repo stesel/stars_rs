@@ -1,10 +1,38 @@
-use std::ops::Range;
 use cgmath::num_traits::ToPrimitive;
 use winit::event::{WindowEvent, KeyboardInput, ElementState, VirtualKeyCode};
 use winit::window::Window;
+use wgpu::util::DeviceExt;
 
 #[cfg(debug_assertions)]
 use perf_meter::PerfMeter;
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
+struct Vertex {
+    position: [f32; 3],
+    color: [f32; 3],
+}
+
+impl Vertex {
+    const ATTRIBS: [wgpu::VertexAttribute; 2] =
+        wgpu::vertex_attr_array![0 => Float32x3, 1 => Float32x3];
+
+    fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
+        use std::mem;
+
+        wgpu::VertexBufferLayout {
+            array_stride: mem::size_of::<Self>() as wgpu::BufferAddress,
+            step_mode: wgpu::VertexStepMode::Vertex,
+            attributes: &Self::ATTRIBS,
+        }
+    }
+}
+
+const VERTICES: &[Vertex] = &[
+    Vertex { position: [0.0, 0.5, 0.0], color: [1.0, 0.0, 0.0] },
+    Vertex { position: [-0.5, -0.5, 0.0], color: [0.0, 1.0, 0.0] },
+    Vertex { position: [0.5, -0.5, 0.0], color: [0.0, 0.0, 1.0] },
+];
 
 pub struct State {
     pub surface: wgpu::Surface,
@@ -17,6 +45,8 @@ pub struct State {
     update_counter: u32,
     space_pressed: bool,
     render_pipeline: wgpu::RenderPipeline,
+    vertex_buffer: wgpu::Buffer,
+    num_vertices: u32,
     #[cfg(debug_assertions)]
     perf_meter: PerfMeter,
 }
@@ -78,7 +108,9 @@ impl State {
             vertex: wgpu::VertexState {
                 module: &shader,
                 entry_point: "vs_main",
-                buffers: &[],
+                buffers: &[
+                    Vertex::desc(),
+                ],
             },
             fragment: Some(wgpu::FragmentState {
                 module: &shader,
@@ -108,6 +140,17 @@ impl State {
             },
         });
 
+        let vertex_buffer = device.create_buffer_init(
+            &wgpu::util::BufferInitDescriptor {
+                label: Some("Vertex Buffer"),
+                contents: bytemuck::cast_slice(VERTICES),
+                usage: wgpu::BufferUsages::VERTEX,
+            }
+    
+        );
+
+        let num_vertices = VERTICES.len() as u32;
+
         #[cfg(debug_assertions)]
         let perf_meter = PerfMeter::new(1);
 
@@ -122,6 +165,8 @@ impl State {
             update_counter,
             space_pressed,
             render_pipeline,
+            vertex_buffer,
+            num_vertices,
             #[cfg(debug_assertions)]
             perf_meter,
         }
@@ -193,8 +238,8 @@ impl State {
             });
 
             render_pass.set_pipeline(&self.render_pipeline);
-            let vertices: Range<u32> = if self.space_pressed { 0..4 } else { 0..3 };
-            render_pass.draw(vertices, 0..1);
+            render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
+            render_pass.draw(0..self.num_vertices, 0..1);
         }
 
         self.queue.submit(std::iter::once(encoder.finish()));
