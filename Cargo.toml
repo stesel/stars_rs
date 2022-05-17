@@ -6,14 +6,15 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-image = "0.23"
-winit = "0.25"
+image = "0.24"
 cgmath = "0.18"
+winit = "0.26"
 env_logger = "0.9"
 log = "0.4"
-wgpu = "0.11"
 pollster = "0.2"
+wgpu = "0.12"
 bytemuck = { version = "1.4", features = [ "derive" ] }
+anyhow = "1.0" # NEW!
 
 [target."cfg(debug_assertions)".dependencies]
 perf_meter = { git = "https://github.com/stesel/perf_meter", branch = "master" }
