@@ -22,3 +22,7 @@ Cargo.lock
 #/target
 
 /.idea
+
+/node_modules
+
+/out

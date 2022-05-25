@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "name": "stars_rs",
+  "author": "Leonid Trofymchuk <stesel23@gmail.com>",
+  "scripts": {
+    "start": "npm run copy-static && serve ./out",
+    "copy-static": "cp -a ./page/. ./out && cp -a ./assets ./out"
+  },
+  "devDependencies": {
+    "serve": "^13.0.2"
+  }
+}
