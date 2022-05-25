@@ -1,0 +1,41 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ bevy ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  deploy:
+  
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install lib dependencies
+        run: sudo apt-get install g++ pkg-config libx11-dev libasound2-dev libudev-dev
+        
+      - name: add wasm target
+        run: rustup target add wasm32-unknown-unknown
+        
+      - name: Add wasm-binder-cli
+        run: cargo install -f wasm-bindgen-cli
+        
+      - name: Build wasm
+        run: cargo build --release --target wasm32-unknown-unknown
+        
+      - name: bind build to wasm
+        run: wasm-bindgen --out-dir ./out/ --target web ./target/wasm32-unknown-unknown/release/stars_rs.wasm
+        
+      - name: Copy page files to out/
+        run: cp -a ./page/. ./out/
+        
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4.3.3
+        with:
+          branch: gh-pages
+          folder: out
+        
