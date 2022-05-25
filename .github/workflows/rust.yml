@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Install LLD
+      run: sudo apt-get install lld
     - name: Build
       run: cargo build --verbose
     - name: Run tests
