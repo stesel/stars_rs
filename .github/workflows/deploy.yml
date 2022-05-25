@@ -31,7 +31,10 @@ jobs:
         run: wasm-bindgen --out-dir ./out/ --target web ./target/wasm32-unknown-unknown/release/stars_rs.wasm
         
       - name: Copy page files to out/
-        run: cp -a ./page/. ./out/
+        run: cp -a ./page/. ./out
+        
+      - name: Copy asset files to out/
+        run: cp -a ./assets ./out
         
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.3.3
