@@ -1,5 +1,8 @@
 use bevy::{prelude::*, input::{keyboard::{KeyCode}}};
 
+use crate::events;
+use events::PositionEvent;
+
 #[derive(Component, Deref, DerefMut)]
 struct CharacterAnimationTimer(Timer);
 
@@ -31,6 +34,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut texture_atl
     commands
         .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture_atlas_handle,
+            transform: Transform::from_xyz(0.0, 0.0, 1.0),
             ..default()
         })
         .insert(CharacterAnimationTimer(Timer::from_seconds(0.05, true)))
@@ -51,9 +55,18 @@ fn animate(
 
 }
 
-fn transform_changed(windows: Res<Windows>, mut query: Query<(&Character, &mut Transform), Changed<Character>>) {
+fn transform_changed(
+    windows: Res<Windows>,
+    mut position_events: EventWriter<PositionEvent>,
+    mut query: Query<(&Character, &mut Transform), Changed<Character>>
+) {
     for (character, mut transform) in query.iter_mut() {
-        transform.translation = Vec3::new(character.position.x, character.position.y, 0.0);
+        transform.translation.x = character.position.x;
+        transform.translation.y = character.position.y;
+    
+        position_events.send(PositionEvent {
+            position: Vec2::new(character.position.x, character.position.y)
+        });
 
         let window = windows.get_primary().unwrap();
         let window_width = window.width();
@@ -84,7 +97,6 @@ fn follow_keyboard(
 
     let delta = time.delta().as_secs_f32();
     
-
     if keyboard_input.pressed(KeyCode::Up) || keyboard_input.pressed(KeyCode::W) {
         character.speed.y = MAX_SPEED * delta;
     }
@@ -129,6 +141,7 @@ impl Plugin for CharacterPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_startup_system(setup)
+            .add_event::<PositionEvent>()
             .add_system(animate)
             .add_system(transform_changed)
             .add_system(follow_mouse)

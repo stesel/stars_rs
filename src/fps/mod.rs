@@ -6,24 +6,25 @@ struct FpsText;
 fn add_fps_text(mut commands: Commands, asset_server: Res<AssetServer>, windows: Res<Windows>) {
     let window = windows.get_primary().unwrap();
 
+    let style = TextStyle {
+        font: asset_server.load("FiraMono-Medium.ttf"),
+        font_size: 16.0,
+        color: Color::WHITE,
+    };
+
     commands
         .spawn_bundle(Text2dBundle {
             text: Text {
                 sections: vec![
                     TextSection {
                         value: "FPS:".to_string(),
-                        style: TextStyle {
-                            font: asset_server.load("FiraMono-Medium.ttf"),
-                            font_size: 20.0,
-                            color: Color::WHITE,
-                        },
+                        style: style.clone(),
                     },
                     TextSection {
                         value: "".to_string(),
                         style: TextStyle {
-                            font: asset_server.load("FiraMono-Medium.ttf"),
-                            font_size: 20.0,
                             color: Color::GOLD,
+                            ..style
                         },
                     },
                 ],
@@ -35,7 +36,7 @@ fn add_fps_text(mut commands: Commands, asset_server: Res<AssetServer>, windows:
             transform: Transform::from_xyz(
                 -window.width() / 2.0,
                 window.height() / 2.0,
-                1.0,
+                2.0,
             ),
             ..default()
         })
