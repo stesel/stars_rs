@@ -1,6 +1,7 @@
 mod camera;
 mod character;
 mod window;
+mod fps;
 
 use bevy::{prelude::*};
 
@@ -10,5 +11,6 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(camera::CameraPlugin)
         .add_plugin(character::CharacterPlugin)
+        .add_plugin(fps::FpsTextPlugin)
         .run();
 }

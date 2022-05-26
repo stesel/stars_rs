@@ -11,6 +11,6 @@ impl Plugin for WindowPlugin {
                 title: "stars_rs".to_string(),
                 ..default()
             })
-            .insert_resource(ClearColor(Color::BISQUE));
+            .insert_resource(ClearColor(Color::DARK_GRAY));
     }
 }
