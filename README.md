@@ -1,5 +1,6 @@
 [![Rust](https://github.com/stesel/stars_rs/actions/workflows/rust.yml/badge.svg)](https://github.com/stesel/stars_rs/actions/workflows/rust.yml)
 [![Deploy](https://github.com/stesel/stars_rs/actions/workflows/deploy.yml/badge.svg)](https://github.com/stesel/stars_rs/actions/workflows/deploy.yml)
+[![pages-build-deployment](https://github.com/stesel/stars_rs/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/stesel/stars_rs/actions/workflows/pages/pages-build-deployment)
 # stars_rs
 Star shooter with bevy/wgpu
 
