@@ -11,6 +11,7 @@ impl Plugin for WindowPlugin {
                 width: WINDOW_SIZE.width,
                 height: WINDOW_SIZE.height,
                 title: "stars_rs".to_string(),
+                cursor_visible: true,
                 ..default()
             })
             .insert_resource(ClearColor(Color::DARK_GRAY));

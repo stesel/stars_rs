@@ -1,6 +1,6 @@
 use bevy::{prelude::*};
 
-use crate::consts::WINDOW_SIZE;
+use crate::consts::{WINDOW_SIZE, ELEMENT_POSITION_Z};
 
 #[derive(Component)]
 struct Aim;
@@ -9,16 +9,10 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
     .spawn_bundle(SpriteBundle {
         texture: asset_server.load("aim.png"),
-        transform: Transform::from_xyz(0.0, 0.0, 2.0),
+        transform: Transform::from_xyz(0.0, 0.0, ELEMENT_POSITION_Z.aim),
         ..default()
     })
     .insert(Aim);
-}
-
-fn hide_cursor(mut windows: ResMut<Windows>) {
-    for window in windows.iter_mut() {
-        window.set_cursor_visibility(false);
-    }
 }
 
 fn follow_mouse(mut cursor_moved_events: EventReader<CursorMoved>, mut query: Query<&mut Transform, With<Aim>>) {
@@ -35,7 +29,6 @@ impl Plugin for AimPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_startup_system(setup)
-            .add_startup_system(hide_cursor)
             .add_system(follow_mouse);
     }
 }
