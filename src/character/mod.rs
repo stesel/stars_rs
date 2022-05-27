@@ -1,7 +1,6 @@
 use bevy::{prelude::*, input::{keyboard::{KeyCode}}};
 
-use crate::events;
-use events::PositionEvent;
+use crate::{events::PositionEvent, consts::{WINDOW_SIZE, ELEMENT_POSITION_Z}};
 
 #[derive(Component, Deref, DerefMut)]
 struct CharacterAnimationTimer(Timer);
@@ -34,7 +33,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut texture_atl
     commands
         .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture_atlas_handle,
-            transform: Transform::from_xyz(0.0, 0.0, 1.0),
+            transform: Transform::from_xyz(0.0, 0.0, ELEMENT_POSITION_Z.character),
             ..default()
         })
         .insert(CharacterAnimationTimer(Timer::from_seconds(0.05, true)))
@@ -56,7 +55,6 @@ fn animate(
 }
 
 fn transform_changed(
-    windows: Res<Windows>,
     mut position_events: EventWriter<PositionEvent>,
     mut query: Query<(&Character, &mut Transform), Changed<Character>>
 ) {
@@ -68,11 +66,8 @@ fn transform_changed(
             position: Vec2::new(character.position.x, character.position.y)
         });
 
-        let window = windows.get_primary().unwrap();
-        let window_width = window.width();
-        let window_height = window.height();
-        let delta_x = character.mouse.x - character.position.x - window_width / 2.0;
-        let delta_y = character.mouse.y - character.position.y - window_height / 2.0;
+        let delta_x = character.mouse.x - character.position.x - WINDOW_SIZE.width / 2.0;
+        let delta_y = character.mouse.y - character.position.y - WINDOW_SIZE.height / 2.0;
         let rotation_z = -delta_x.atan2(delta_y);
 
         transform.rotation = Quat::from_rotation_z(rotation_z);
@@ -88,7 +83,6 @@ fn follow_mouse(mut cursor_moved_events: EventReader<CursorMoved>,mut query: Que
 }
 
 fn follow_keyboard(
-    windows: Res<Windows>,
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<&mut Character>
@@ -116,9 +110,8 @@ fn follow_keyboard(
     character.position.x += character.speed.x;
     character.position.y += character.speed.y;
 
-    let window = windows.get_primary().unwrap();
-    let max_x = window.width() / 2.0;
-    let max_y = window.height() / 2.0;
+    let max_x = WINDOW_SIZE.width / 2.0;
+    let max_y = WINDOW_SIZE.height / 2.0;
 
     if character.position.x > max_x {
         character.position.x = max_x;

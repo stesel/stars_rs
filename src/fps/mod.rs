@@ -1,11 +1,11 @@
 use bevy::{prelude::*, diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin}};
 
+use crate::consts::WINDOW_SIZE;
+
 #[derive(Component)]
 struct FpsText;
 
-fn add_fps_text(mut commands: Commands, asset_server: Res<AssetServer>, windows: Res<Windows>) {
-    let window = windows.get_primary().unwrap();
-
+fn add_fps_text(mut commands: Commands, asset_server: Res<AssetServer>) {
     let style = TextStyle {
         font: asset_server.load("FiraMono-Medium.ttf"),
         font_size: 16.0,
@@ -34,9 +34,9 @@ fn add_fps_text(mut commands: Commands, asset_server: Res<AssetServer>, windows:
                 }
             },
             transform: Transform::from_xyz(
-                -window.width() / 2.0,
-                window.height() / 2.0,
-                2.0,
+                -WINDOW_SIZE.width / 2.0,
+                WINDOW_SIZE.height / 2.0,
+                4.0,
             ),
             ..default()
         })
