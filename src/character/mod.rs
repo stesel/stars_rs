@@ -20,7 +20,7 @@ impl Default for Character {
         Self {
             position: Vec2::new(0.0, 0.0),
             speed: Vec2::new(0.0, 0.0),
-            mouse: Vec2::new(300.0, 250.0),
+            mouse: Vec2::new(WINDOW_SIZE.width / 2.0, WINDOW_SIZE.height / 2.0),
         }
     }
 }

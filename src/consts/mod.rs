@@ -12,6 +12,6 @@ pub struct PositionZ {
 pub static POSITION_Z: PositionZ = PositionZ {
     background: 0.0,
     character: 1.0,
-    aim: 1.0,
+    aim: 2.0,
     fps: 3.0,
 };
