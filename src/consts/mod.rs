@@ -9,9 +9,9 @@ pub struct PositionZ {
     pub aim: f32,
     pub fps: f32,
 }
-pub static ELEMENT_POSITION_Z: PositionZ = PositionZ {
+pub static POSITION_Z: PositionZ = PositionZ {
     background: 0.0,
     character: 1.0,
-    aim: 2.0,
+    aim: 1.0,
     fps: 3.0,
 };

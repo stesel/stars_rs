@@ -1,7 +1,6 @@
 use bevy::{prelude::*};
 
-use crate::events;
-use events::PositionEvent;
+use crate::{events::PositionEvent, consts::POSITION_Z};
 
 #[derive(Component)]
 struct Background;
@@ -12,7 +11,7 @@ fn add_background(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn_bundle(SpriteBundle {
             texture: asset_server.load("background.png"),
-            transform: Transform::from_scale(Vec3::splat(SCALE)),
+            transform: Transform::from_xyz(0.0, 0.0, POSITION_Z.background).with_scale(Vec3::splat(SCALE)),
             ..default()
         })
         .insert(Background);

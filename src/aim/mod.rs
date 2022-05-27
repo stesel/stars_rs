@@ -1,6 +1,6 @@
 use bevy::{prelude::*};
 
-use crate::consts::{WINDOW_SIZE, ELEMENT_POSITION_Z};
+use crate::consts::{WINDOW_SIZE, POSITION_Z};
 
 #[derive(Component)]
 struct Aim;
@@ -9,7 +9,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
     .spawn_bundle(SpriteBundle {
         texture: asset_server.load("aim.png"),
-        transform: Transform::from_xyz(0.0, 0.0, ELEMENT_POSITION_Z.aim),
+        transform: Transform::from_xyz(0.0, 0.0, POSITION_Z.aim),
         ..default()
     })
     .insert(Aim);

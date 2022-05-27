@@ -1,6 +1,6 @@
 use bevy::{prelude::*, input::{keyboard::{KeyCode}}};
 
-use crate::{events::PositionEvent, consts::{WINDOW_SIZE, ELEMENT_POSITION_Z}};
+use crate::{events::PositionEvent, consts::{WINDOW_SIZE, POSITION_Z}};
 
 #[derive(Component, Deref, DerefMut)]
 struct CharacterAnimationTimer(Timer);
@@ -33,7 +33,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut texture_atl
     commands
         .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture_atlas_handle,
-            transform: Transform::from_xyz(0.0, 0.0, ELEMENT_POSITION_Z.character),
+            transform: Transform::from_xyz(0.0, 0.0, POSITION_Z.character),
             ..default()
         })
         .insert(CharacterAnimationTimer(Timer::from_seconds(0.05, true)))

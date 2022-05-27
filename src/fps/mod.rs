@@ -1,6 +1,6 @@
 use bevy::{prelude::*, diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin}};
 
-use crate::consts::WINDOW_SIZE;
+use crate::consts::{WINDOW_SIZE, POSITION_Z};
 
 #[derive(Component)]
 struct FpsText;
@@ -36,7 +36,7 @@ fn add_fps_text(mut commands: Commands, asset_server: Res<AssetServer>) {
             transform: Transform::from_xyz(
                 -WINDOW_SIZE.width / 2.0,
                 WINDOW_SIZE.height / 2.0,
-                4.0,
+                POSITION_Z.fps,
             ),
             ..default()
         })
