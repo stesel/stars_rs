@@ -1,12 +1,14 @@
 mod window;
 mod camera;
 mod background;
+mod bullet;
 mod character;
 mod rain;
 mod aim;
 mod fps;
 
 mod consts;
+mod utils;
 mod events;
 
 use bevy::{prelude::*};
@@ -17,6 +19,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(camera::CameraPlugin)
         .add_plugin(background::BackgroundPlugin)
+        .add_plugin(bullet::BulletPlugin)
         .add_plugin(character::CharacterPlugin)
         .add_plugin(rain::RainPlugin)
         .add_plugin(aim::AimPlugin)

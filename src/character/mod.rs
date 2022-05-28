@@ -1,6 +1,6 @@
 use bevy::{prelude::*, input::{keyboard::{KeyCode}}};
 
-use crate::{events::PositionEvent, consts::{WINDOW_SIZE, POSITION_Z}};
+use crate::{events::TransformEvent, consts::{WINDOW_SIZE, POSITION_Z}};
 
 #[derive(Component, Deref, DerefMut)]
 struct CharacterAnimationTimer(Timer);
@@ -55,22 +55,23 @@ fn animate(
 }
 
 fn transform_changed(
-    mut position_events: EventWriter<PositionEvent>,
+    mut position_events: EventWriter<TransformEvent>,
     mut query: Query<(&Character, &mut Transform), Changed<Character>>
 ) {
     for (character, mut transform) in query.iter_mut() {
         transform.translation.x = character.position.x;
         transform.translation.y = character.position.y;
-    
-        position_events.send(PositionEvent {
-            position: Vec2::new(character.position.x, character.position.y)
-        });
 
         let delta_x = character.mouse.x - character.position.x - WINDOW_SIZE.width / 2.0;
         let delta_y = character.mouse.y - character.position.y - WINDOW_SIZE.height / 2.0;
         let rotation_z = -delta_x.atan2(delta_y);
 
         transform.rotation = Quat::from_rotation_z(rotation_z);
+
+        position_events.send(TransformEvent {
+            position: Vec2::new(character.position.x, character.position.y),
+            rotation: rotation_z,
+        });
     }
 }
 
@@ -134,7 +135,7 @@ impl Plugin for CharacterPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_startup_system(setup)
-            .add_event::<PositionEvent>()
+            .add_event::<TransformEvent>()
             .add_system(animate)
             .add_system(transform_changed)
             .add_system(follow_mouse)

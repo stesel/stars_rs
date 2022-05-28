@@ -1,5 +1,6 @@
 use bevy::{prelude::*};
 
-pub struct PositionEvent {
+pub struct TransformEvent {
     pub position: Vec2,
+    pub rotation: f32,
 }

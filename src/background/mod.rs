@@ -1,6 +1,6 @@
 use bevy::{prelude::*};
 
-use crate::{events::PositionEvent, consts::POSITION_Z};
+use crate::{events::TransformEvent, consts::POSITION_Z};
 
 #[derive(Component)]
 struct Background;
@@ -18,10 +18,10 @@ fn add_background(mut commands: Commands, asset_server: Res<AssetServer>) {
 }
 
 fn move_background(
-    mut position_events: EventReader<PositionEvent>,
+    mut transform_events: EventReader<TransformEvent>,
     mut query: Query<&mut Transform, With<Background>>
 ) {
-    for position_event in position_events.iter() {
+    for position_event in transform_events.iter() {
         let mut transform = query.single_mut();
         
         transform.translation.x = (position_event.position.x * (1.0 - SCALE)) / 2.0;

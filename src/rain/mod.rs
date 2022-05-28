@@ -1,11 +1,10 @@
 use bevy::{prelude::*};
-use rand::{prelude::*};
 
-use crate::{consts::{WINDOW_SIZE,POSITION_Z}};
+use crate::{consts::{WINDOW_SIZE,POSITION_Z}, utils::random_in_range};
 
-static AVERAGE_SPEED_X: f32 = 10.0;
-static AVERAGE_SPEED_Y: f32 = 150.0;
-static SPEED_DELTA_Y: f32 = 30.0;
+static SPEED_X: f32 = 10.0;
+static MIN_SPEED_Y: f32 = 130.0;
+static MAX_SPEED_Y: f32 = 40.0;
 static DROP_SIZE: Size = Size {
     width: 2.0,
     height: 8.0
@@ -20,19 +19,19 @@ struct Drop {
 impl Default for Drop {
     fn default() -> Self {
         Self {
-            speed: Vec2::new(AVERAGE_SPEED_X, AVERAGE_SPEED_Y - SPEED_DELTA_Y / 2.0 + SPEED_DELTA_Y * random::<f32>()),
+            speed: Vec2::new(SPEED_X, random_in_range(MIN_SPEED_Y, MAX_SPEED_Y)),
         }
     }
 }
 
 fn get_initial_position() -> Vec2 {
-    let x = -WINDOW_SIZE.width / 2.0 - DROP_SIZE.width + WINDOW_SIZE.width * random::<f32>();
-    let y = (WINDOW_SIZE.height + DROP_SIZE.height) / 2.0 - WINDOW_SIZE.height * random::<f32>();
+    let x = random_in_range(-WINDOW_SIZE.width / 2.0 - DROP_SIZE.width, WINDOW_SIZE.width / 2.0);
+    let y = random_in_range(-WINDOW_SIZE.height / 2.0, (WINDOW_SIZE.height + DROP_SIZE.height) / 2.0);
     Vec2::new(x, y)
 }
 
 fn get_restart_position() -> Vec2 {
-    let x = -WINDOW_SIZE.width / 2.0 - DROP_SIZE.width + WINDOW_SIZE.width * random::<f32>();
+    let x = random_in_range(-WINDOW_SIZE.width / 2.0 - DROP_SIZE.width, WINDOW_SIZE.width / 2.0);
     let y = (WINDOW_SIZE.height + DROP_SIZE.height) / 2.0;
     Vec2::new(x, y)
 }
@@ -71,7 +70,6 @@ fn update_rain(
         }
     }
 }
-
 
 pub struct RainPlugin;
 
