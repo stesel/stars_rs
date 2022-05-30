@@ -1,5 +1,8 @@
 mod window;
+mod app;
 mod camera;
+mod state;
+mod loader;
 mod background;
 mod bullet;
 mod character;
@@ -13,11 +16,14 @@ mod events;
 
 use bevy::{prelude::*};
 
-fn main() {  
+fn main() {
     App::new()
         .add_plugin(window::WindowPlugin)
         .add_plugins(DefaultPlugins)
+        .add_plugin(app::AppPlugin)
         .add_plugin(camera::CameraPlugin)
+        .add_plugin(state::StatePlugin)
+        .add_plugin(loader::LoaderPlugin)
         .add_plugin(background::BackgroundPlugin)
         .add_plugin(bullet::BulletPlugin)
         .add_plugin(character::CharacterPlugin)

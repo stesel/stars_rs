@@ -1,6 +1,6 @@
 use bevy::{prelude::*};
 
-use crate::{consts::{WINDOW_SIZE,POSITION_Z}, events::TransformEvent};
+use crate::{consts::{WINDOW_SIZE,POSITION_Z}, events::TransformEvent, state::AppState};
 
 static BULLET_SPEED: f32 = 300.0;
 static BULLET_SIZE: Size = Size {
@@ -48,7 +48,8 @@ fn handle_transform(
 ) {
     for transform_event in transform_events.iter() {
         let mut bullet = query.single_mut();
-        bullet.position = transform_event.position;
+        bullet.position.x = transform_event.position.x;
+        bullet.position.y = transform_event.position.y;
         bullet.rotation = transform_event.rotation;
     }
 }
@@ -67,7 +68,7 @@ fn update_bullet(
             bullet.speed = Vec2::new(-BULLET_SPEED * rotation.sin(), BULLET_SPEED * rotation.cos());
             transform.rotation = Quat::from_rotation_z(rotation);
             transform.translation.x = bullet.position.x;
-            transform.translation.y = bullet.position.x;
+            transform.translation.y = bullet.position.y;
         }
 
         if visibility.is_visible == false {
@@ -92,8 +93,8 @@ pub struct BulletPlugin;
 impl Plugin for BulletPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_startup_system(add_bullet)
-            .add_system(handle_transform)
-            .add_system(update_bullet);
+            .add_system_set(SystemSet::on_enter(AppState::Main).with_system(add_bullet))
+            .add_system_set(SystemSet::on_update(AppState::Main).with_system(handle_transform))
+            .add_system_set(SystemSet::on_update(AppState::Main).with_system(update_bullet));
     }
 }

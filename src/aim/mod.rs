@@ -1,18 +1,18 @@
 use bevy::{prelude::*};
 
-use crate::consts::{WINDOW_SIZE, POSITION_Z};
+use crate::{consts::{WINDOW_SIZE, POSITION_Z}, state::{AppState, LoaderState}};
 
 #[derive(Component)]
 struct Aim;
 
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn setup(mut commands: Commands, loader: Res<LoaderState>,) {
     commands
-    .spawn_bundle(SpriteBundle {
-        texture: asset_server.load("aim.png"),
-        transform: Transform::from_xyz(0.0, 0.0, POSITION_Z.aim),
-        ..default()
-    })
-    .insert(Aim);
+        .spawn_bundle(SpriteBundle {
+            texture: loader.aim_image.clone(),
+            transform: Transform::from_xyz(0.0, 0.0, POSITION_Z.aim),
+            ..default()
+        })
+        .insert(Aim);
 }
 
 fn follow_mouse(mut cursor_moved_events: EventReader<CursorMoved>, mut query: Query<&mut Transform, With<Aim>>) {
@@ -28,7 +28,7 @@ pub struct AimPlugin;
 impl Plugin for AimPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_startup_system(setup)
-            .add_system(follow_mouse);
+            .add_system_set(SystemSet::on_enter(AppState::Main).with_system(setup))
+            .add_system_set(SystemSet::on_update(AppState::Main).with_system(follow_mouse));
     }
 }

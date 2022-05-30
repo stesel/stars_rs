@@ -1,13 +1,13 @@
 use bevy::{prelude::*, diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin}};
 
-use crate::consts::{WINDOW_SIZE, POSITION_Z};
+use crate::{consts::{WINDOW_SIZE, POSITION_Z}, state::{LoaderState, AppState}};
 
 #[derive(Component)]
 struct FpsText;
 
-fn add_fps_text(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn add_fps_text(mut commands: Commands, loader: Res<LoaderState>,) {
     let style = TextStyle {
-        font: asset_server.load("FiraMono-Medium.ttf"),
+        font: loader.font.clone(),
         font_size: 16.0,
         color: Color::WHITE,
     };
@@ -59,7 +59,7 @@ impl Plugin for FpsTextPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_plugin(FrameTimeDiagnosticsPlugin::default())
-            .add_startup_system(add_fps_text)
-            .add_system(update_fps_text);
+            .add_system_set(SystemSet::on_enter(AppState::Main).with_system(add_fps_text))
+            .add_system_set(SystemSet::on_update(AppState::Main).with_system(update_fps_text));
     }
 }

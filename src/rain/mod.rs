@@ -1,6 +1,6 @@
 use bevy::{prelude::*};
 
-use crate::{consts::{WINDOW_SIZE,POSITION_Z}, utils::random_in_range};
+use crate::{consts::{WINDOW_SIZE,POSITION_Z}, utils::random_in_range, state::AppState};
 
 static SPEED_X: f32 = 10.0;
 static MIN_SPEED_Y: f32 = 130.0;
@@ -76,7 +76,7 @@ pub struct RainPlugin;
 impl Plugin for RainPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_startup_system(add_rain)
-            .add_system(update_rain);
+            .add_system_set(SystemSet::on_enter(AppState::Main).with_system(add_rain))
+            .add_system_set(SystemSet::on_update(AppState::Main).with_system(update_rain));
     }
 }

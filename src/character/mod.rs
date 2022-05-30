@@ -1,6 +1,6 @@
 use bevy::{prelude::*, input::{keyboard::{KeyCode}}};
 
-use crate::{events::TransformEvent, consts::{WINDOW_SIZE, POSITION_Z}};
+use crate::{events::TransformEvent, consts::{WINDOW_SIZE, POSITION_Z}, state::{AppState, LoaderState}};
 
 #[derive(Component, Deref, DerefMut)]
 struct CharacterAnimationTimer(Timer);
@@ -25,8 +25,12 @@ impl Default for Character {
     }
 }
 
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut texture_atlases: ResMut<Assets<TextureAtlas>>) {
-    let texture_handle = asset_server.load("character.png");
+fn setup(
+    mut commands: Commands, 
+    loader: Res<LoaderState>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+) {
+    let texture_handle = loader.character_image.clone();
     let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(128.0, 128.0), 5, 1);
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
@@ -134,11 +138,11 @@ pub struct CharacterPlugin;
 impl Plugin for CharacterPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_startup_system(setup)
             .add_event::<TransformEvent>()
-            .add_system(animate)
-            .add_system(transform_changed)
-            .add_system(follow_mouse)
-            .add_system(follow_keyboard);
+            .add_system_set(SystemSet::on_enter(AppState::Main).with_system(setup))
+            .add_system_set(SystemSet::on_update(AppState::Main).with_system(animate))
+            .add_system_set(SystemSet::on_update(AppState::Main).with_system(transform_changed))
+            .add_system_set(SystemSet::on_update(AppState::Main).with_system(follow_mouse))
+            .add_system_set(SystemSet::on_update(AppState::Main).with_system(follow_keyboard));
     }
 }
