@@ -9,6 +9,7 @@ pub struct PositionZ {
     pub rain: f32,
     pub aim: f32,
     pub fps: f32,
+    pub loader: f32,
 }
 pub static POSITION_Z: PositionZ = PositionZ {
     background: 0.0,
@@ -17,4 +18,5 @@ pub static POSITION_Z: PositionZ = PositionZ {
     rain: 3.0,
     aim: 4.0,
     fps: 5.0,
+    loader: 6.0,
 };

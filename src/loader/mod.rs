@@ -2,7 +2,7 @@ use std::f32::consts::PI;
 
 use bevy::{prelude::*, asset::{LoadState}};
 
-use crate::state::{AppState, LoaderState};
+use crate::{state::{AppState, LoaderState}, consts::POSITION_Z};
 
 #[derive(Component)]
 struct LoaderSprite;
@@ -15,7 +15,7 @@ fn load(mut commands: Commands, asset_server: Res<AssetServer>) {
                 custom_size: Some(Vec2::new(50.0, 50.0)),
                 ..default()
             },
-            transform: Transform::from_xyz(0.0, 0.0, 5.0),
+            transform: Transform::from_xyz(0.0, 0.0, POSITION_Z.loader),
             ..default()
         }).insert(LoaderSprite).id();
 

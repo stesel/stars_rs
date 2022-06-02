@@ -15,6 +15,8 @@ struct Character {
 static MAX_SPEED: f32 = 150.0;
 static FRICTION: f32 = 0.96;
 
+const CHARACTER_COLOR: Color = Color::rgba(10.0, 0.0, 10.0, 1.0);
+
 impl Default for Character {
     fn default() -> Self {
         Self {
@@ -36,6 +38,10 @@ fn setup(
 
     commands
         .spawn_bundle(SpriteSheetBundle {
+            sprite: TextureAtlasSprite {
+                color: CHARACTER_COLOR,
+                ..default()
+            },
             texture_atlas: texture_atlas_handle,
             transform: Transform::from_xyz(0.0, 0.0, POSITION_Z.character),
             ..default()
@@ -94,22 +100,22 @@ fn follow_keyboard(
 ) {
     let mut character = query.single_mut();
 
-    let delta = time.delta().as_secs_f32();
+    let delta_seconds = time.delta_seconds();
     
     if keyboard_input.pressed(KeyCode::Up) || keyboard_input.pressed(KeyCode::W) {
-        character.speed.y = MAX_SPEED * delta;
+        character.speed.y = MAX_SPEED * delta_seconds;
     }
 
     if keyboard_input.pressed(KeyCode::Down) || keyboard_input.pressed(KeyCode::S) {
-        character.speed.y = -MAX_SPEED * delta;
+        character.speed.y = -MAX_SPEED * delta_seconds;
     }
 
     if keyboard_input.pressed(KeyCode::Right) || keyboard_input.pressed(KeyCode::D) {
-        character.speed.x = MAX_SPEED * delta;
+        character.speed.x = MAX_SPEED * delta_seconds;
     }
 
     if keyboard_input.pressed(KeyCode::Left) || keyboard_input.pressed(KeyCode::A) {
-        character.speed.x = -MAX_SPEED * delta;
+        character.speed.x = -MAX_SPEED * delta_seconds;
     }
 
     character.position.x += character.speed.x;

@@ -31,7 +31,7 @@ fn add_bullet(mut commands: Commands) {
     commands
         .spawn_bundle(SpriteBundle {
             sprite: Sprite {
-                color: Color::rgba(200.0, 0.0, 0.0, 0.8),
+                color: Color::rgba(1.0, 0.0, 1.0, 0.8),
                 custom_size: Some(Vec2::new(BULLET_SIZE.width, BULLET_SIZE.height)),
                 ..default()
             },
@@ -58,8 +58,7 @@ fn update_bullet(
     time: Res<Time>,
     mut query: Query<(&mut Bullet, &mut Visibility, &mut Transform)>,
 ) {
-    let delta = time.delta();
-    let delta_secs = delta.as_secs_f32();
+    let delta_seconds = time.delta_seconds();
 
     for (mut bullet, mut visibility, mut transform) in query.iter_mut() {
         if bullet.timer.tick(time.delta()).just_finished() {
@@ -82,8 +81,8 @@ fn update_bullet(
             visibility.is_visible = false;
             bullet.timer.reset();
         } else {
-            transform.translation.x += bullet.speed.x * delta_secs;
-            transform.translation.y += bullet.speed.y * delta_secs;
+            transform.translation.x += bullet.speed.x * delta_seconds;
+            transform.translation.y += bullet.speed.y * delta_seconds;
         }
     }
 }

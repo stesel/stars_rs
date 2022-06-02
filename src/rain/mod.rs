@@ -57,7 +57,7 @@ fn update_rain(
     time: Res<Time>,
     mut query: Query<(&Drop, &mut Transform)>,
 ) {
-    let delta = time.delta().as_secs_f32();
+    let delta_seconds = time.delta_seconds();
 
     for (drop, mut transform) in query.iter_mut() {
         if transform.translation.x > (WINDOW_SIZE.width + DROP_SIZE.width) / 2.0 || transform.translation.y < -(WINDOW_SIZE.height + DROP_SIZE.height) / 2.0 {
@@ -65,8 +65,8 @@ fn update_rain(
             transform.translation.x = position.x;
             transform.translation.y = position.y;
         } else {
-            transform.translation.x += drop.speed.x * delta;
-            transform.translation.y -= drop.speed.y * delta;
+            transform.translation.x += drop.speed.x * delta_seconds;
+            transform.translation.y -= drop.speed.y * delta_seconds;
         }
     }
 }
