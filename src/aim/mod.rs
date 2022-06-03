@@ -28,7 +28,8 @@ pub struct AimPlugin;
 impl Plugin for AimPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system_set(SystemSet::on_enter(AppState::Main).with_system(setup))
+            .add_system_set(SystemSet::on_exit(AppState::Loading).with_system(setup))
+            .add_system_set(SystemSet::on_update(AppState::Menu).with_system(follow_mouse))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(follow_mouse));
     }
 }

@@ -4,6 +4,7 @@ use bevy::{prelude::*, asset::HandleId};
 pub enum AppState {
     Loading,
     Main,
+    Menu,
 }
 
 pub struct LoaderState {

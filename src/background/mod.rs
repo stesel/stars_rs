@@ -29,13 +29,29 @@ fn move_background(
     }
 }
 
+fn add_tint(
+    mut query: Query<&mut Sprite, With<Background>>
+) {
+    let mut sprite = query.single_mut();
+    sprite.color = Color::rgba(0.7, 0.7, 0.7, 0.8);
+}
+
+fn remove_tint(
+    mut query: Query<&mut Sprite, With<Background>>
+) {
+    let mut sprite = query.single_mut();
+    sprite.color = Color::default();
+}
+
 
 pub struct BackgroundPlugin;
 
 impl Plugin for BackgroundPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system_set(SystemSet::on_enter(AppState::Main).with_system(add_background))
+            .add_system_set(SystemSet::on_exit(AppState::Loading).with_system(add_background))
+            .add_system_set(SystemSet::on_enter(AppState::Menu).with_system(add_tint))
+            .add_system_set(SystemSet::on_enter(AppState::Main).with_system(remove_tint))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(move_background));
     }
 }

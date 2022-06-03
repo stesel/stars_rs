@@ -3,6 +3,7 @@ mod app;
 mod camera;
 mod state;
 mod loader;
+mod menu;
 mod background;
 mod bullet;
 mod character;
@@ -24,6 +25,7 @@ fn main() {
         .add_plugin(camera::CameraPlugin)
         .add_plugin(state::StatePlugin)
         .add_plugin(loader::LoaderPlugin)
+        .add_plugin(menu::MenuPlugin)
         .add_plugin(background::BackgroundPlugin)
         .add_plugin(bullet::BulletPlugin)
         .add_plugin(character::CharacterPlugin)

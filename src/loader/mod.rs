@@ -46,7 +46,7 @@ fn loading(
             transform.rotation = Quat::from_rotation_z((time.seconds_since_startup().cos() as f32) * PI);
         },
         LoadState::Loaded => {
-            state.set(AppState::Main).unwrap();
+            state.set(AppState::Menu).unwrap();
         },
         _ => {},
     }

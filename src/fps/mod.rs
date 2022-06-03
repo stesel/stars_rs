@@ -59,7 +59,8 @@ impl Plugin for FpsTextPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_plugin(FrameTimeDiagnosticsPlugin::default())
-            .add_system_set(SystemSet::on_enter(AppState::Main).with_system(add_fps_text))
+            .add_system_set(SystemSet::on_exit(AppState::Loading).with_system(add_fps_text))
+            .add_system_set(SystemSet::on_update(AppState::Menu).with_system(update_fps_text))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(update_fps_text));
     }
 }
