@@ -1,4 +1,4 @@
-use bevy::{prelude::*};
+use bevy::{prelude::*, utils::Duration};
 
 use crate::{consts::{WINDOW_SIZE,POSITION_Z}, events::TransformEvent, state::AppState};
 
@@ -7,6 +7,8 @@ static BULLET_SIZE: Size = Size {
     width: 5.0,
     height: 20.0
 };
+static BULLET_INITIAL_DELAY: f32 = 0.1;
+static BULLET_DELAY: f32 = 0.5;
 
 #[derive(Component)]
 struct Bullet {
@@ -19,7 +21,7 @@ struct Bullet {
 impl Default for Bullet {
     fn default() -> Self {
         Self {
-            timer: Timer::from_seconds(3.0, false),
+            timer: Timer::from_seconds(BULLET_INITIAL_DELAY, false),
             position: Vec2::new(0.0, 0.0),
             rotation: 0.0,
             speed: Vec2::new(0.0, 0.0),
@@ -55,19 +57,30 @@ fn handle_transform(
 }
 
 fn update_bullet(
+    mouse_button_input: Res<Input<MouseButton>>,
     time: Res<Time>,
     mut query: Query<(&mut Bullet, &mut Visibility, &mut Transform)>,
 ) {
     let delta_seconds = time.delta_seconds();
 
+    let just_pressed = mouse_button_input.just_pressed(MouseButton::Left);
+
     for (mut bullet, mut visibility, mut transform) in query.iter_mut() {
-        if bullet.timer.tick(time.delta()).just_finished() {
-            visibility.is_visible = true;
-            let rotation = bullet.rotation;
-            bullet.speed = Vec2::new(-BULLET_SPEED * rotation.sin(), BULLET_SPEED * rotation.cos());
-            transform.rotation = Quat::from_rotation_z(rotation);
-            transform.translation.x = bullet.position.x;
-            transform.translation.y = bullet.position.y;
+        if bullet.timer.tick(time.delta()).finished() {
+            if just_pressed {
+                visibility.is_visible = true;
+                let rotation = bullet.rotation;
+                bullet.speed = Vec2::new(-BULLET_SPEED * rotation.sin(), BULLET_SPEED * rotation.cos());
+                transform.rotation = Quat::from_rotation_z(rotation);
+                transform.translation.x = bullet.position.x;
+                transform.translation.y = bullet.position.y;
+
+                if bullet.timer.duration() == Duration::from_secs_f32(BULLET_INITIAL_DELAY) {
+                    bullet.timer.set_duration(Duration::from_secs_f32(BULLET_DELAY));
+                }
+
+                bullet.timer.reset();
+            }
         }
 
         if visibility.is_visible == false {
@@ -79,7 +92,6 @@ fn update_bullet(
             || transform.translation.y < -WINDOW_SIZE.height / 2.0 - BULLET_SIZE.height
             || transform.translation.y > WINDOW_SIZE.height / 2.0 + BULLET_SIZE.height  {
             visibility.is_visible = false;
-            bullet.timer.reset();
         } else {
             transform.translation.x += bullet.speed.x * delta_seconds;
             transform.translation.y += bullet.speed.y * delta_seconds;
