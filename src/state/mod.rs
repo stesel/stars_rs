@@ -10,6 +10,7 @@ pub enum AppState {
 pub struct LoaderState {
     pub loader_entity: Entity,
     pub background_image: Handle<Image>,
+    pub enemy_image: Handle<Image>,
     pub character_image: Handle<Image>,
     pub aim_image: Handle<Image>,
     pub font: Handle<Font>

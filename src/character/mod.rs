@@ -15,7 +15,7 @@ struct Character {
 static MAX_SPEED: f32 = 150.0;
 static FRICTION: f32 = 0.96;
 
-const CHARACTER_COLOR: Color = Color::rgba(10.0, 0.0, 10.0, 1.0);
+const CHARACTER_COLOR: Color = Color::rgba(0.0, 0.0, 0.0, 1.0);
 
 impl Default for Character {
     fn default() -> Self {

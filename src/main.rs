@@ -6,6 +6,7 @@ mod loader;
 mod menu;
 mod background;
 mod bullet;
+mod enemies;
 mod character;
 mod rain;
 mod aim;
@@ -28,6 +29,7 @@ fn main() {
         .add_plugin(menu::MenuPlugin)
         .add_plugin(background::BackgroundPlugin)
         .add_plugin(bullet::BulletPlugin)
+        .add_plugin(enemies::EnemiesPlugin)
         .add_plugin(character::CharacterPlugin)
         .add_plugin(rain::RainPlugin)
         .add_plugin(aim::AimPlugin)

@@ -20,6 +20,7 @@ fn load(mut commands: Commands, asset_server: Res<AssetServer>) {
         }).insert(LoaderSprite).id();
 
     let background_image: Handle<Image> = asset_server.load("background.png");
+    let enemy_image: Handle<Image> = asset_server.load("enemy.png");
     let character_image: Handle<Image> = asset_server.load("character.png");
     let aim_image: Handle<Image> = asset_server.load("aim.png");
     let font: Handle<Font> = asset_server.load("FiraMono-Medium.ttf");
@@ -27,6 +28,7 @@ fn load(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(LoaderState {
         loader_entity: loader_entity,
         background_image: background_image,
+        enemy_image: enemy_image,
         character_image: character_image,
         aim_image: aim_image,
         font: font,
