@@ -5,12 +5,25 @@ extern crate stars_rs;
 
 #[cfg(test)]
 mod utils {
-    use super::stars_rs::utils::random_in_range;
+    use stars_rs::utils::{random_in_range, random_in_rect_edge};
 
     #[test]
     fn test_random_in_range() {
-        let subject = random_in_range(0.0, 1.0);
-        assert_ge!(subject, 0.0);
-        assert_le!(subject, 1.0);
+        for _ in 0..10 {
+            let subject = random_in_range(0.0, 1.0);
+            assert_ge!(subject, 0.0);
+            assert_le!(subject, 1.0);
+        }
+    }
+
+    #[test]
+    fn test_random_in_rect_edge() {
+        for _ in 0..10 {
+            let subject = random_in_rect_edge(-1.0, 1.0, 1.0, -1.0);
+            assert_ge!(subject.x, -1.0);
+            assert_le!(subject.x, 1.0);
+            assert_ge!(subject.y, -1.0);
+            assert_le!(subject.y, 1.0);
+        }
     }
 }

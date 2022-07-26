@@ -1,14 +1,18 @@
 use bevy::{prelude::*};
 
-use crate::{consts::{WINDOW_SIZE,POSITION_Z}, utils::random_in_range, state::{AppState, LoaderState}};
+use crate::{consts::{WINDOW_SIZE,POSITION_Z}, utils::{random_in_range,random_in_rect_edge,Position}, state::{AppState, LoaderState}};
 
-static MIN_SPEED: f32 = -200.0;
+static MIN_SPEED: f32 = 100.0;
 static MAX_SPEED: f32 = 200.0;
 static ENEMY_SIZE: Size = Size {
     width: 128.0,
     height: 128.0
 };
-static ENEMY_COUNT: u32 = 20;
+static ENEMY_EDGE_POSITION: Position = Position {
+    x: (WINDOW_SIZE.width + ENEMY_SIZE.width) / 2.0,
+    y: (WINDOW_SIZE.height + ENEMY_SIZE.height) / 2.0,
+};
+static ENEMY_COUNT: u32 = 200;
 
 #[derive(Component, Deref, DerefMut)]
 struct EnemyAnimationTimer(Timer);
@@ -18,20 +22,43 @@ struct Enemy {
     speed: Vec2,
 }
 
-impl Default for Enemy {
-    fn default() -> Self {
+impl Enemy {
+    fn from_speed(x: f32, y: f32) -> Self {
         Self {
-            speed: Vec2::new(random_in_range(MIN_SPEED, MAX_SPEED), random_in_range(MIN_SPEED, MAX_SPEED)),
+            speed: Vec2::new(x, y),
         }
     }
 }
 
-fn get_initial_position() -> Vec2 {
-    Vec2::new(0.0, 0.0)
+impl Default for Enemy {
+    fn default() -> Self {
+        Self::from_speed(0.0, 0.0)
+    }
 }
 
-fn get_restart_position() -> Vec2 {
-    Vec2::new(0.0, 0.0)
+fn get_position() -> Vec2 {
+    random_in_rect_edge(
+        -ENEMY_EDGE_POSITION.x,
+        ENEMY_EDGE_POSITION.x,
+        ENEMY_EDGE_POSITION.y,
+        -ENEMY_EDGE_POSITION.y,
+    )
+}
+
+fn get_speed(position: &Vec2) -> Vec2 {
+    if position.x == -ENEMY_EDGE_POSITION.x  {
+        Vec2::new(random_in_range(MIN_SPEED, MAX_SPEED), random_in_range(-MAX_SPEED, MAX_SPEED))
+    } else if position.x == ENEMY_EDGE_POSITION.x {
+        Vec2::new(random_in_range(-MAX_SPEED, -MIN_SPEED), random_in_range(-MAX_SPEED, MAX_SPEED))
+    } else if position.y == ENEMY_EDGE_POSITION.y {
+        Vec2::new(random_in_range(-MAX_SPEED, MAX_SPEED), random_in_range(-MAX_SPEED, -MIN_SPEED))
+    } else {
+        Vec2::new(random_in_range(-MAX_SPEED, MAX_SPEED), random_in_range(MIN_SPEED, MAX_SPEED))
+    }
+}
+
+fn get_rotation_z(speed: &Vec2) -> f32 {
+    -speed.x.atan2(speed.y)
 }
 
 fn add_enemies(
@@ -44,9 +71,9 @@ fn add_enemies(
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
     for _ in 0..ENEMY_COUNT {
-        let position = get_initial_position();
-        let enemy = Enemy::default();
-        let rotation_z = -enemy.speed.x.atan2(enemy.speed.y);
+        let position = get_position();
+        let speed = get_speed(&position);
+        let rotation_z = get_rotation_z(&speed);
 
         commands
             .spawn_bundle(SpriteSheetBundle {
@@ -55,7 +82,7 @@ fn add_enemies(
                 ..default()
             })
             .insert(EnemyAnimationTimer(Timer::from_seconds(0.07, true)))
-            .insert(enemy);
+            .insert(Enemy::from_speed(speed.x, speed.y));
     }
 }
 
@@ -75,19 +102,26 @@ fn animate(
 
 fn update_enemies(
     time: Res<Time>,
-    mut query: Query<(&Enemy, &mut Transform)>,
+    mut query: Query<(&mut Enemy, &mut Transform)>,
 ) {
     let delta_seconds = time.delta_seconds();
 
-    for (enemy, mut transform) in query.iter_mut() {
-        if transform.translation.x > WINDOW_SIZE.width / 2.0 + ENEMY_SIZE.width ||
-            transform.translation.x < -WINDOW_SIZE.width / 2.0 - ENEMY_SIZE.width ||
-            transform.translation.y > WINDOW_SIZE.height / 2.0 + ENEMY_SIZE.height ||
-            transform.translation.y < -WINDOW_SIZE.height / 2.0 - ENEMY_SIZE.height
+    for (mut enemy, mut transform) in query.iter_mut() {
+        if transform.translation.x > ENEMY_EDGE_POSITION.x ||
+            transform.translation.x < -ENEMY_EDGE_POSITION.x ||
+            transform.translation.y > ENEMY_EDGE_POSITION.y ||
+            transform.translation.y < -ENEMY_EDGE_POSITION.y
         {
-            let position = get_restart_position();
+            let position = get_position();
+            let speed = get_speed(&position);
+            let rotation_z = get_rotation_z(&speed);
+
+            enemy.speed.x = speed.x;
+            enemy.speed.y = speed.y;
+    
             transform.translation.x = position.x;
             transform.translation.y = position.y;
+            transform.rotation = Quat::from_rotation_z(rotation_z);
         } else {
             transform.translation.x += enemy.speed.x * delta_seconds;
             transform.translation.y += enemy.speed.y * delta_seconds;
