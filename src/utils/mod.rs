@@ -55,8 +55,6 @@ pub trait GetBoundingRect {
 /// }
 /// ```
 pub fn hit_test(lhr: BoundingRect, rhr: BoundingRect) -> bool {
-    println!("player x:{} y:{}, enemy x:{} y:{}", lhr.x, lhr.y, rhr.x, rhr.y);
-
     (lhr.x - rhr.x).abs() < (lhr.width + rhr.width) / 4.0 &&
         (lhr.y - rhr.y).abs() < (lhr.height + rhr.height) / 4.0
 }

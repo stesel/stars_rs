@@ -12,7 +12,7 @@ static ENEMY_EDGE_POSITION: Position = Position {
     x: (WINDOW_SIZE.width + ENEMY_SIZE.width) / 2.0,
     y: (WINDOW_SIZE.height + ENEMY_SIZE.height) / 2.0,
 };
-static ENEMY_COUNT: u32 = 1;
+static ENEMY_COUNT: u32 = 5;
 
 #[derive(Component, Deref, DerefMut)]
 struct EnemyAnimationTimer(Timer);
