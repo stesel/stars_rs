@@ -14,6 +14,80 @@ pub struct Position {
 }
 
 /// ```
+/// use stars_rs::utils::BoundingRect;
+/// 
+/// fn main() {
+///     let rect = BoundingRect { x: 0.0, y: 0.0, width: 1.0, height: 1.0 };
+/// }
+/// ```
+pub struct BoundingRect {
+    pub x: f32,
+    pub y: f32,
+    pub width: f32,
+    pub height: f32,
+}
+
+/// ```
+/// use stars_rs::utils::{BoundingRect, GetBoundingRect};
+/// 
+/// fn main() {
+///     struct Item();
+/// 
+///     impl GetBoundingRect for Item {
+///         fn get_bounding_rect(&self) -> BoundingRect {
+///             BoundingRect { x: 0.0, y: 0.0, width: 1.0, height: 1.0 }
+///         }
+///     }
+/// }
+/// ```
+pub trait GetBoundingRect {
+    fn get_bounding_rect(&self) -> BoundingRect;
+}
+
+/// ```
+/// use stars_rs::utils::{GetBoundingRect, HitTest};
+/// 
+/// fn main() {
+///     struct Item();
+/// 
+///     impl HitTest for Item {
+///         fn hit_test(&self, target: &dyn GetBoundingRect) -> bool {
+///             let rect = target.get_bounding_rect();
+///             (rect.x >= 0.0 && rect.width <= 1.0) || (rect.y >= 0.0 && rect.height <= 1.0)
+///         }
+///     }
+/// }
+/// ```
+pub trait HitTest {
+    fn hit_test(&self, target: &dyn GetBoundingRect) -> bool;
+}
+/// ```
+/// use stars_rs::utils::{GetBoundingRect, BoundingRect, rect_hit_test};
+/// 
+/// fn main() {
+///     struct Target();
+/// 
+///     impl GetBoundingRect for Target {
+///         fn get_bounding_rect(&self) -> BoundingRect {
+///             BoundingRect { x: 0.0, y: 0.0, width: 1.0, height: 1.0 }
+///         }
+///     }
+/// 
+///     let lht: Target = Target();  
+///     let rht: Target = Target();  
+/// 
+///     let hit = rect_hit_test(&lht, &rht);
+/// }
+/// ```
+pub fn rect_hit_test(lht: &dyn GetBoundingRect, rht: &dyn GetBoundingRect) -> bool {
+    let lhr = lht.get_bounding_rect();
+    let rhr = rht.get_bounding_rect();
+
+    (lhr.x - rhr.x).abs() < 50.0 ||
+        (lhr.y - rhr.y).abs() < 50.0
+}
+
+/// ```
 /// use stars_rs::utils::random_in_range;
 /// 
 /// fn main() {

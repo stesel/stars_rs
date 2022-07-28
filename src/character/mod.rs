@@ -1,17 +1,21 @@
 use bevy::{prelude::*, input::{keyboard::{KeyCode}}};
 
-use crate::{events::TransformEvent, consts::{WINDOW_SIZE, POSITION_Z}, state::{AppState, LoaderState}};
+use crate::{events::TransformEvent, consts::{WINDOW_SIZE, POSITION_Z}, state::{AppState, LoaderState}, utils::{HitTest, BoundingRect, GetBoundingRect,rect_hit_test}};
 
 #[derive(Component, Deref, DerefMut)]
 struct CharacterAnimationTimer(Timer);
 
 #[derive(Component)]
-struct Character {
+pub struct Character {
     position: Vec2,
     speed: Vec2,
     mouse: Vec2,
 }
 
+static CHARACTER_SIZE: Size = Size {
+    width: 128.0,
+    height: 128.0,
+};
 static MAX_SPEED: f32 = 150.0;
 static FRICTION: f32 = 0.96;
 
@@ -27,13 +31,30 @@ impl Default for Character {
     }
 }
 
+impl GetBoundingRect for Character {
+    fn get_bounding_rect(&self) -> BoundingRect {
+        BoundingRect {
+            x: self.position.x,
+            y: self.position.y,
+            width: CHARACTER_SIZE.width,
+            height: CHARACTER_SIZE.height,
+        }
+    }
+}
+
+impl HitTest for Character {
+    fn hit_test(&self, target: &dyn GetBoundingRect) -> bool {
+        rect_hit_test(self, target)
+    }
+}
+
 fn setup(
     mut commands: Commands, 
     loader: Res<LoaderState>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
     let texture_handle = loader.character_image.clone();
-    let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(128.0, 128.0), 5, 1);
+    let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(CHARACTER_SIZE.width, CHARACTER_SIZE.height), 5, 1);
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
     commands

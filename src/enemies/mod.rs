@@ -1,10 +1,10 @@
 use bevy::{prelude::*};
 
-use crate::{consts::{WINDOW_SIZE,POSITION_Z}, utils::{random_in_range,random_in_rect_edge,Position}, state::{AppState, LoaderState}};
+use crate::{consts::{WINDOW_SIZE,POSITION_Z}, utils::{random_in_range,random_in_rect_edge,rect_hit_test,BoundingRect,GetBoundingRect,HitTest,Position}, state::{AppState, LoaderState}};
 
 static MIN_SPEED: f32 = 100.0;
 static MAX_SPEED: f32 = 200.0;
-static ENEMY_SIZE: Size = Size {
+pub static ENEMY_SIZE: Size = Size {
     width: 128.0,
     height: 128.0
 };
@@ -12,27 +12,46 @@ static ENEMY_EDGE_POSITION: Position = Position {
     x: (WINDOW_SIZE.width + ENEMY_SIZE.width) / 2.0,
     y: (WINDOW_SIZE.height + ENEMY_SIZE.height) / 2.0,
 };
-static ENEMY_COUNT: u32 = 200;
+static ENEMY_COUNT: u32 = 2;
 
 #[derive(Component, Deref, DerefMut)]
 struct EnemyAnimationTimer(Timer);
 
 #[derive(Component)]
-struct Enemy {
+pub struct Enemy {
+    position: Vec2,
     speed: Vec2,
 }
 
 impl Enemy {
-    fn from_speed(x: f32, y: f32) -> Self {
+    fn new(position: Vec2, speed: Vec2) -> Self {
         Self {
-            speed: Vec2::new(x, y),
+            position: position,
+            speed: speed,
         }
     }
 }
 
 impl Default for Enemy {
     fn default() -> Self {
-        Self::from_speed(0.0, 0.0)
+        Self::new(Vec2::new(0.0, 0.0), Vec2::new(0.0, 0.0))
+    }
+}
+
+impl GetBoundingRect for Enemy {
+    fn get_bounding_rect(&self) -> BoundingRect {
+        BoundingRect {
+            x: self.position.x,
+            y: self.position.y,
+            width: ENEMY_SIZE.width,
+            height: ENEMY_SIZE.height,
+        }
+    }
+}
+
+impl HitTest for Enemy {
+    fn hit_test(&self, target: &dyn GetBoundingRect) -> bool {
+        rect_hit_test(self, target)
     }
 }
 
@@ -82,7 +101,7 @@ fn add_enemies(
                 ..default()
             })
             .insert(EnemyAnimationTimer(Timer::from_seconds(0.07, true)))
-            .insert(Enemy::from_speed(speed.x, speed.y));
+            .insert(Enemy::new(position, speed));
     }
 }
 
@@ -116,6 +135,8 @@ fn update_enemies(
             let speed = get_speed(&position);
             let rotation_z = get_rotation_z(&speed);
 
+            enemy.position.x = position.x;
+            enemy.position.y = position.y;
             enemy.speed.x = speed.x;
             enemy.speed.y = speed.y;
     
@@ -123,9 +144,18 @@ fn update_enemies(
             transform.translation.y = position.y;
             transform.rotation = Quat::from_rotation_z(rotation_z);
         } else {
-            transform.translation.x += enemy.speed.x * delta_seconds;
-            transform.translation.y += enemy.speed.y * delta_seconds;
+            enemy.position.x += enemy.speed.x * delta_seconds;
+            enemy.position.y += enemy.speed.y * delta_seconds;
         }
+    }
+}
+
+fn position_changed(
+    mut query: Query<(&Enemy, &mut Transform), Changed<Enemy>>
+) {
+    for (enemy, mut transform) in query.iter_mut() {
+        transform.translation.x = enemy.position.x;
+        transform.translation.y = enemy.position.y;
     }
 }
 
@@ -136,6 +166,7 @@ impl Plugin for EnemiesPlugin {
         app
             .add_system_set(SystemSet::on_enter(AppState::Main).with_system(add_enemies))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(animate))
-            .add_system_set(SystemSet::on_update(AppState::Main).with_system(update_enemies));
+            .add_system_set(SystemSet::on_update(AppState::Main).with_system(update_enemies))
+            .add_system_set(SystemSet::on_update(AppState::Main).with_system(position_changed));
     }
 }

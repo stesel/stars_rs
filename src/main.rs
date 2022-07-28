@@ -8,6 +8,7 @@ mod background;
 mod bullet;
 mod enemies;
 mod character;
+mod collision;
 mod rain;
 mod aim;
 mod fps;
@@ -31,6 +32,7 @@ fn main() {
         .add_plugin(bullet::BulletPlugin)
         .add_plugin(enemies::EnemiesPlugin)
         .add_plugin(character::CharacterPlugin)
+        .add_plugin(collision::CollisionPlugin)
         .add_plugin(rain::RainPlugin)
         .add_plugin(aim::AimPlugin)
         .add_plugin(fps::FpsTextPlugin)
