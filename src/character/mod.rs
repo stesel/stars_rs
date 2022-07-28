@@ -1,6 +1,6 @@
 use bevy::{prelude::*, input::{keyboard::{KeyCode}}};
 
-use crate::{events::TransformEvent, consts::{WINDOW_SIZE, POSITION_Z}, state::{AppState, LoaderState}, utils::{HitTest, BoundingRect, GetBoundingRect,rect_hit_test}};
+use crate::{events::TransformEvent, consts::{WINDOW_SIZE, POSITION_Z}, state::{AppState, LoaderState}, utils::{BoundingRect, GetBoundingRect}};
 
 #[derive(Component, Deref, DerefMut)]
 struct CharacterAnimationTimer(Timer);
@@ -39,12 +39,6 @@ impl GetBoundingRect for Character {
             width: CHARACTER_SIZE.width,
             height: CHARACTER_SIZE.height,
         }
-    }
-}
-
-impl HitTest for Character {
-    fn hit_test(&self, target: &dyn GetBoundingRect) -> bool {
-        rect_hit_test(self, target)
     }
 }
 

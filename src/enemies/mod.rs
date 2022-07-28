@@ -1,6 +1,6 @@
 use bevy::{prelude::*};
 
-use crate::{consts::{WINDOW_SIZE,POSITION_Z}, utils::{random_in_range,random_in_rect_edge,rect_hit_test,BoundingRect,GetBoundingRect,HitTest,Position}, state::{AppState, LoaderState}};
+use crate::{consts::{WINDOW_SIZE,POSITION_Z}, utils::{random_in_range,random_in_rect_edge,BoundingRect,GetBoundingRect,Position}, state::{AppState, LoaderState}};
 
 static MIN_SPEED: f32 = 100.0;
 static MAX_SPEED: f32 = 200.0;
@@ -12,7 +12,7 @@ static ENEMY_EDGE_POSITION: Position = Position {
     x: (WINDOW_SIZE.width + ENEMY_SIZE.width) / 2.0,
     y: (WINDOW_SIZE.height + ENEMY_SIZE.height) / 2.0,
 };
-static ENEMY_COUNT: u32 = 2;
+static ENEMY_COUNT: u32 = 1;
 
 #[derive(Component, Deref, DerefMut)]
 struct EnemyAnimationTimer(Timer);
@@ -46,12 +46,6 @@ impl GetBoundingRect for Enemy {
             width: ENEMY_SIZE.width,
             height: ENEMY_SIZE.height,
         }
-    }
-}
-
-impl HitTest for Enemy {
-    fn hit_test(&self, target: &dyn GetBoundingRect) -> bool {
-        rect_hit_test(self, target)
     }
 }
 
