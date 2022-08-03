@@ -1,4 +1,4 @@
-use bevy::math::{Size};
+use bevy::ui::Size;
 
 pub static WINDOW_SIZE: Size = Size { width: 600.0, height: 500.0 };
 

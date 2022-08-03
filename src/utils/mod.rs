@@ -71,7 +71,6 @@ pub fn random_in_range(min: f32, max: f32) -> f32 {
 }
 
 /// ```
-/// use bevy::math::{Rect};
 /// use stars_rs::utils::random_in_rect_edge;
 /// 
 /// fn main() {
