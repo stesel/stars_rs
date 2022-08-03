@@ -1,9 +1,9 @@
-use bevy::{prelude::*, input::system::exit_on_esc_system};
+use bevy::{prelude::*, window::close_on_esc};
 
 pub struct AppPlugin;
 
 impl Plugin for AppPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(exit_on_esc_system);
+        app.add_system(close_on_esc);
     }
 }

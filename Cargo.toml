@@ -4,10 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = "0.7"
-rand = "0.8"
+bevy = "0.8"
+rand = "0.8.4"
 
 [dev-dependencies]
-more-asserts = "0.2"
+more-asserts = "0.3.0"
 
 # dynamic linking - cargo run --features bevy/dynamic
