@@ -1,6 +1,6 @@
 use bevy::{prelude::*, input::{keyboard::{KeyCode}}};
 
-use crate::{events::TransformEvent, consts::{WINDOW_SIZE, POSITION_Z}, state::{AppState, LoaderState}, utils::{BoundingRect, GetBoundingRect}};
+use crate::{events::TransformEvent, consts::{WINDOW_SIZE, POSITION_Z}, state::{AppState, LoaderState}, utils::{BoundingRect, GetBoundingRect, IsActive, SetSpeed}};
 
 #[derive(Component, Deref, DerefMut)]
 struct CharacterAnimationTimer(Timer);
@@ -10,6 +10,7 @@ pub struct Character {
     position: Vec2,
     speed: Vec2,
     mouse: Vec2,
+    active: bool,
 }
 
 static CHARACTER_SIZE: Size = Size {
@@ -27,6 +28,7 @@ impl Default for Character {
             position: Vec2::new(0.0, 0.0),
             speed: Vec2::new(0.0, 0.0),
             mouse: Vec2::new(WINDOW_SIZE.width / 2.0, WINDOW_SIZE.height / 2.0),
+            active: true,
         }
     }
 }
@@ -39,6 +41,22 @@ impl GetBoundingRect for Character {
             width: CHARACTER_SIZE.width,
             height: CHARACTER_SIZE.height,
         }
+    }
+}
+
+impl SetSpeed for Character {
+    fn set_speed(&mut self, speed: Vec2) {
+        self.speed = speed;
+    }
+}
+
+impl IsActive for Character {
+    fn get_active(&self) -> bool {
+        self.active
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
     }
 }
 
