@@ -20,7 +20,7 @@ struct EnemyAnimationTimer(Timer);
 #[derive(Component)]
 pub struct Enemy {
     position: Vec2,
-    speed: Vec2,
+    pub speed: Vec2,
 }
 
 impl Enemy {

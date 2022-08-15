@@ -40,8 +40,54 @@ pub struct BoundingRect {
 ///     }
 /// }
 /// ```
+/// 
 pub trait GetBoundingRect {
     fn get_bounding_rect(&self) -> BoundingRect;
+}
+
+/// ```
+/// use stars_rs::utils::{SetSpeed};
+/// use bevy::math::{Vec2};
+/// 
+/// fn main() {
+///     struct Item {
+///         speed: Vec2,
+///     };
+/// 
+///     impl SetSpeed for Item {
+///         fn set_speed(&mut self, speed: Vec2) {
+///             self.speed = speed;
+///         }
+///     }
+/// }
+/// ```
+pub trait SetSpeed {
+    fn set_speed(&mut self, speed: Vec2);
+}
+
+/// ```
+/// use stars_rs::utils::{IsActive};
+/// 
+/// fn main() {
+///     struct Item {
+///         active: bool,
+///     };
+/// 
+///     impl IsActive for Item {
+///         fn get_active(&self) -> bool {
+///             self.active
+///         }
+/// 
+///         fn set_active(&mut self, active: bool) {
+///             self.active = active;
+///         }
+///     }
+/// }
+/// ```
+pub trait IsActive {
+    fn get_active(&self) -> bool;
+
+    fn set_active(&mut self, active: bool);
 }
 
 /// ```

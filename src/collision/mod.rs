@@ -1,17 +1,19 @@
 use bevy::{prelude::*};
 
-use crate::{character::Character, enemies::Enemy, state::AppState, utils::{GetBoundingRect,hit_test}};
+use crate::{character::Character, enemies::Enemy, state::AppState, utils::{GetBoundingRect, IsActive, SetSpeed, hit_test}};
 
 fn check_collision(
-    character_query: Query<&Character>,
+    mut character_query: Query<&mut Character>,
     enemy_query: Query<&Enemy>,
     time: Res<Time>,
 ) {
-    let character = character_query.single();
+    let mut character = character_query.single_mut();
 
     for enemy in enemy_query.iter() {
-        if hit_test(character.get_bounding_rect(), enemy.get_bounding_rect()) {
+        if character.get_active() && hit_test(character.get_bounding_rect(), enemy.get_bounding_rect()) {
             println!("character hits {}", time.delta_seconds());
+            character.set_speed(enemy.speed * 0.02);
+            character.set_active(false);
         }
     }
 }
