@@ -8,6 +8,6 @@
     "copy-static": "cp -a ./page/. ./out && cp -a ./assets ./out"
   },
   "devDependencies": {
-    "serve": "^13.0.2"
+    "serve": "^14.0.1"
   }
 }

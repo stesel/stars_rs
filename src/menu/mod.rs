@@ -67,7 +67,6 @@ fn setup(mut commands: Commands, loader: Res<LoaderState>) {
 
 fn remove_button(mut commands: Commands, query: Query<Entity, With<MenuButton>>) {
     for entity in query.iter() {
-        info!("remove {:?}", entity);
         commands.entity(entity).despawn_recursive();
     }
 }
