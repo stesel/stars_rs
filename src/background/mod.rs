@@ -21,11 +21,11 @@ fn move_background(
     mut transform_events: EventReader<TransformEvent>,
     mut query: Query<&mut Transform, With<Background>>
 ) {
-    for position_event in transform_events.iter() {
+    for transform_event in transform_events.iter() {
         let mut transform = query.single_mut();
         
-        transform.translation.x = (position_event.position.x * (1.0 - SCALE)) / 2.0;
-        transform.translation.y = (position_event.position.y * (1.0 - SCALE)) / 2.0;
+        transform.translation.x = (transform_event.position.x * (1.0 - SCALE)) / 2.0;
+        transform.translation.y = (transform_event.position.y * (1.0 - SCALE)) / 2.0;
     }
 }
 
