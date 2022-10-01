@@ -18,6 +18,17 @@ static ENEMY_COUNT: u32 = 5;
 struct EnemyAnimationTimer(Timer);
 
 #[derive(Component)]
+pub struct EnemyCount {
+    pub count: u32,
+}
+
+impl EnemyCount {
+    pub fn remove(&mut self) {
+        self.count = self.count - 1;
+    }
+}
+
+#[derive(Component)]
 pub struct Enemy {
     position: Vec2,
     pub speed: Vec2,
@@ -82,6 +93,8 @@ fn add_enemies(
     let texture_handle = loader.enemy_image.clone();
     let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(ENEMY_SIZE.width, ENEMY_SIZE.height), 5, 1);
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
+
+    commands.spawn().insert(EnemyCount{ count: ENEMY_COUNT });
 
     for _ in 0..ENEMY_COUNT {
         let position = get_position();

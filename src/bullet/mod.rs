@@ -1,6 +1,6 @@
 use bevy::{prelude::*, utils::Duration};
 
-use crate::{consts::{WINDOW_SIZE,POSITION_Z}, events::TransformEvent, state::AppState};
+use crate::{consts::{WINDOW_SIZE,POSITION_Z}, events::TransformEvent, state::AppState, utils::{IsActive,BoundingRect,GetBoundingRect}};
 
 static BULLET_SPEED: f32 = 300.0;
 static BULLET_SIZE: Size = Size {
@@ -11,20 +11,45 @@ static BULLET_INITIAL_DELAY: f32 = 0.1;
 static BULLET_DELAY: f32 = 0.5;
 
 #[derive(Component)]
-struct Bullet {
+pub struct Bullet {
     timer: Timer,
+    initial_position: Vec2,
     position: Vec2,
     rotation: f32,
     speed: Vec2,
+    active: bool,
+}
+
+impl GetBoundingRect for Bullet {
+    fn get_bounding_rect(&self) -> BoundingRect {
+        BoundingRect {
+            x: self.position.x,
+            y: self.position.y,
+            width: BULLET_SIZE.width,
+            height: BULLET_SIZE.width,
+        }
+    }
+}
+
+impl IsActive for Bullet {
+    fn get_active(&self) -> bool {
+        self.active
+    }
+
+    fn set_active(&mut self, active: bool) {
+        self.active = active;
+    }
 }
 
 impl Default for Bullet {
     fn default() -> Self {
         Self {
             timer: Timer::from_seconds(BULLET_INITIAL_DELAY, false),
+            initial_position: Vec2::new(0.0, 0.0),
             position: Vec2::new(0.0, 0.0),
             rotation: 0.0,
             speed: Vec2::new(0.0, 0.0),
+            active: false,
         }
     }
 }
@@ -50,8 +75,8 @@ fn handle_transform(
 ) {
     for transform_event in transform_events.iter() {
         let mut bullet = query.single_mut();
-        bullet.position.x = transform_event.position.x;
-        bullet.position.y = transform_event.position.y;
+        bullet.initial_position.x = transform_event.position.x;
+        bullet.initial_position.y = transform_event.position.y;
         bullet.rotation = transform_event.rotation;
     }
 }
@@ -59,21 +84,21 @@ fn handle_transform(
 fn update_bullet(
     mouse_button_input: Res<Input<MouseButton>>,
     time: Res<Time>,
-    mut query: Query<(&mut Bullet, &mut Visibility, &mut Transform)>,
+    mut query: Query<(&mut Bullet, &mut Transform)>,
 ) {
     let delta_seconds = time.delta_seconds();
 
     let just_pressed = mouse_button_input.just_pressed(MouseButton::Left);
 
-    for (mut bullet, mut visibility, mut transform) in query.iter_mut() {
+    for (mut bullet, mut transform) in query.iter_mut() {
         if bullet.timer.tick(time.delta()).finished() {
             if just_pressed {
-                visibility.is_visible = true;
+                bullet.active = true;
                 let rotation = bullet.rotation;
                 bullet.speed = Vec2::new(-BULLET_SPEED * rotation.sin(), BULLET_SPEED * rotation.cos());
                 transform.rotation = Quat::from_rotation_z(rotation);
-                transform.translation.x = bullet.position.x;
-                transform.translation.y = bullet.position.y;
+                bullet.position.x = bullet.initial_position.x;
+                bullet.position.y = bullet.initial_position.y;
 
                 if bullet.timer.duration() == Duration::from_secs_f32(BULLET_INITIAL_DELAY) {
                     bullet.timer.set_duration(Duration::from_secs_f32(BULLET_DELAY));
@@ -83,19 +108,27 @@ fn update_bullet(
             }
         }
 
-        if visibility.is_visible == false {
+        if bullet.active == false {
             return;
         }
 
-        if transform.translation.x < -WINDOW_SIZE.width / 2.0 - BULLET_SIZE.width
-            || transform.translation.x > WINDOW_SIZE.width / 2.0 + BULLET_SIZE.width
-            || transform.translation.y < -WINDOW_SIZE.height / 2.0 - BULLET_SIZE.height
-            || transform.translation.y > WINDOW_SIZE.height / 2.0 + BULLET_SIZE.height  {
-            visibility.is_visible = false;
+        if bullet.position.x < -WINDOW_SIZE.width / 2.0 - BULLET_SIZE.width
+            || bullet.position.x > WINDOW_SIZE.width / 2.0 + BULLET_SIZE.width
+            || bullet.position.y < -WINDOW_SIZE.height / 2.0 - BULLET_SIZE.height
+            || bullet.position.y > WINDOW_SIZE.height / 2.0 + BULLET_SIZE.height  {
+            bullet.active = false;
         } else {
-            transform.translation.x += bullet.speed.x * delta_seconds;
-            transform.translation.y += bullet.speed.y * delta_seconds;
+            bullet.position.x += bullet.speed.x * delta_seconds;
+            bullet.position.y += bullet.speed.y * delta_seconds;
         }
+    }
+}
+
+fn bullet_changed(mut query: Query<(&Bullet, &mut Visibility, &mut Transform), Changed<Bullet>>) {
+    for (bullet, mut visibility, mut transform) in query.iter_mut() {
+        visibility.is_visible = bullet.active;
+        transform.translation.x = bullet.position.x;
+        transform.translation.y = bullet.position.y;
     }
 }
 
@@ -106,6 +139,7 @@ impl Plugin for BulletPlugin {
         app
             .add_system_set(SystemSet::on_enter(AppState::Main).with_system(add_bullet))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(handle_transform))
-            .add_system_set(SystemSet::on_update(AppState::Main).with_system(update_bullet));
+            .add_system_set(SystemSet::on_update(AppState::Main).with_system(update_bullet))
+            .add_system_set(SystemSet::on_update(AppState::Main).with_system(bullet_changed));
     }
 }
