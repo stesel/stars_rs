@@ -30,7 +30,7 @@ impl EnemyCount {
 
 #[derive(Component)]
 pub struct Enemy {
-    position: Vec2,
+    pub position: Vec2,
     pub speed: Vec2,
 }
 

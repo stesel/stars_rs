@@ -177,7 +177,6 @@ pub struct CharacterPlugin;
 impl Plugin for CharacterPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_event::<TransformEvent>()
             .add_system_set(SystemSet::on_enter(AppState::Main).with_system(setup))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(animate))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(transform_changed))
