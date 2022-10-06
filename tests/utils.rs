@@ -9,12 +9,32 @@ mod utils {
 
     #[test]
     fn test_hit_test() {
-        let lhr: BoundingRect = BoundingRect { x: 0.0, y: 0.0, width: 1.0, height: 1.0 };
-        let rhr: BoundingRect = BoundingRect { x: 0.49, y: 0.49, width: 1.0, height: 1.0 };
+        let lhr: BoundingRect = BoundingRect {
+            x: 0.0,
+            y: 0.0,
+            width: 1.0,
+            height: 1.0,
+        };
+        let rhr: BoundingRect = BoundingRect {
+            x: 0.49,
+            y: 0.49,
+            width: 1.0,
+            height: 1.0,
+        };
         assert_eq!(hit_test(lhr, rhr), true);
 
-        let lhr: BoundingRect = BoundingRect { x: 0.0, y: 0.0, width: 1.0, height: 1.0 };
-        let rhr: BoundingRect = BoundingRect { x: 0.5, y: 0.5, width: 1.0, height: 1.0 };
+        let lhr: BoundingRect = BoundingRect {
+            x: 0.0,
+            y: 0.0,
+            width: 1.0,
+            height: 1.0,
+        };
+        let rhr: BoundingRect = BoundingRect {
+            x: 0.5,
+            y: 0.5,
+            width: 1.0,
+            height: 1.0,
+        };
         assert_eq!(hit_test(lhr, rhr), false);
     }
 

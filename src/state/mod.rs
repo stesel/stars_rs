@@ -1,4 +1,4 @@
-use bevy::{prelude::*, asset::HandleId};
+use bevy::{asset::HandleId, prelude::*};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {
@@ -14,7 +14,7 @@ pub struct LoaderState {
     pub character_image: Handle<Image>,
     pub explosion_image: Handle<Image>,
     pub aim_image: Handle<Image>,
-    pub font: Handle<Font>
+    pub font: Handle<Font>,
 }
 impl LoaderState {
     pub fn ids(&self) -> Vec<HandleId> {

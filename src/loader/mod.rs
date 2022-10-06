@@ -1,8 +1,11 @@
 use std::f32::consts::PI;
 
-use bevy::{prelude::*, asset::{LoadState}};
+use bevy::{asset::LoadState, prelude::*};
 
-use crate::{state::{AppState, LoaderState}, consts::POSITION_Z};
+use crate::{
+    consts::POSITION_Z,
+    state::{AppState, LoaderState},
+};
 
 #[derive(Component)]
 struct LoaderSprite;
@@ -17,7 +20,9 @@ fn load(mut commands: Commands, asset_server: Res<AssetServer>) {
             },
             transform: Transform::from_xyz(0.0, 0.0, POSITION_Z.loader),
             ..default()
-        }).insert(LoaderSprite).id();
+        })
+        .insert(LoaderSprite)
+        .id();
 
     let background_image: Handle<Image> = asset_server.load("background.png");
     let enemy_image: Handle<Image> = asset_server.load("enemy.png");
@@ -42,17 +47,18 @@ fn loading(
     asset_server: Res<AssetServer>,
     mut state: ResMut<State<AppState>>,
     time: Res<Time>,
-    mut query: Query<&mut Transform, With<LoaderSprite>>
+    mut query: Query<&mut Transform, With<LoaderSprite>>,
 ) {
     match asset_server.get_group_load_state(loader.ids()) {
         LoadState::Loading => {
             let mut transform = query.single_mut();
-            transform.rotation = Quat::from_rotation_z((time.seconds_since_startup().cos() as f32) * PI);
-        },
+            transform.rotation =
+                Quat::from_rotation_z((time.seconds_since_startup().cos() as f32) * PI);
+        }
         LoadState::Loaded => {
             state.set(AppState::Menu).unwrap();
-        },
-        _ => {},
+        }
+        _ => {}
     }
 }
 
@@ -64,8 +70,7 @@ pub struct LoaderPlugin;
 
 impl Plugin for LoaderPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_system_set(SystemSet::on_enter(AppState::Loading).with_system(load))
+        app.add_system_set(SystemSet::on_enter(AppState::Loading).with_system(load))
             .add_system_set(SystemSet::on_update(AppState::Loading).with_system(loading))
             .add_system_set(SystemSet::on_exit(AppState::Loading).with_system(loaded));
     }

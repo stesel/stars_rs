@@ -1,24 +1,24 @@
-mod window;
+mod aim;
 mod app;
-mod events;
-mod camera;
-mod state;
-mod loader;
-mod menu;
 mod background;
 mod bullet;
-mod enemies;
+mod camera;
 mod character;
-mod explosion;
 mod collision;
-mod rain;
-mod aim;
+mod enemies;
+mod events;
+mod explosion;
 mod fps;
+mod loader;
+mod menu;
+mod rain;
+mod state;
+mod window;
 
 mod consts;
 mod utils;
 
-use bevy::{prelude::*};
+use bevy::prelude::*;
 
 fn main() {
     App::new()
