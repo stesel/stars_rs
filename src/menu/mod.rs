@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use crate::{state::{AppState, LoaderState}, consts::POSITION_Z};
+use crate::{
+    consts::POSITION_Z,
+    state::{AppState, LoaderState},
+};
 
 const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.6, 0.25);
@@ -75,8 +78,7 @@ pub struct MenuPlugin;
 
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_system_set(SystemSet::on_enter(AppState::Menu).with_system(setup))
+        app.add_system_set(SystemSet::on_enter(AppState::Menu).with_system(setup))
             .add_system_set(SystemSet::on_update(AppState::Menu).with_system(button_system))
             .add_system_set(SystemSet::on_exit(AppState::Menu).with_system(remove_button));
     }

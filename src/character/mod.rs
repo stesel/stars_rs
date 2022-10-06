@@ -1,6 +1,11 @@
-use bevy::{prelude::*, input::{keyboard::{KeyCode}}};
+use bevy::{input::keyboard::KeyCode, prelude::*};
 
-use crate::{events::TransformEvent, consts::{WINDOW_SIZE, POSITION_Z}, state::{AppState, LoaderState}, utils::{BoundingRect, GetBoundingRect, IsActive, SetSpeed}};
+use crate::{
+    consts::{POSITION_Z, WINDOW_SIZE},
+    events::TransformEvent,
+    state::{AppState, LoaderState},
+    utils::{BoundingRect, GetBoundingRect, IsActive, SetSpeed},
+};
 
 #[derive(Component, Deref, DerefMut)]
 struct CharacterAnimationTimer(Timer);
@@ -61,12 +66,17 @@ impl IsActive for Character {
 }
 
 fn setup(
-    mut commands: Commands, 
+    mut commands: Commands,
     loader: Res<LoaderState>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
     let texture_handle = loader.character_image.clone();
-    let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(CHARACTER_SIZE.width, CHARACTER_SIZE.height), 5, 1);
+    let texture_atlas = TextureAtlas::from_grid(
+        texture_handle,
+        Vec2::new(CHARACTER_SIZE.width, CHARACTER_SIZE.height),
+        5,
+        1,
+    );
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
     commands
@@ -86,7 +96,11 @@ fn setup(
 fn animate(
     time: Res<Time>,
     texture_atlases: Res<Assets<TextureAtlas>>,
-    mut query: Query<(&mut CharacterAnimationTimer, &mut TextureAtlasSprite, &Handle<TextureAtlas>)>
+    mut query: Query<(
+        &mut CharacterAnimationTimer,
+        &mut TextureAtlasSprite,
+        &Handle<TextureAtlas>,
+    )>,
 ) {
     for (mut timer, mut sprite, texture_atlas_handle) in query.iter_mut() {
         if timer.tick(time.delta()).just_finished() {
@@ -94,12 +108,11 @@ fn animate(
             sprite.index = (sprite.index + 1) % texture_atlas.len();
         }
     }
-
 }
 
 fn transform_changed(
     mut position_events: EventWriter<TransformEvent>,
-    mut query: Query<(&Character, &mut Transform), Changed<Character>>
+    mut query: Query<(&Character, &mut Transform), Changed<Character>>,
 ) {
     for (character, mut transform) in query.iter_mut() {
         transform.translation.x = character.position.x;
@@ -118,7 +131,10 @@ fn transform_changed(
     }
 }
 
-fn follow_mouse(mut cursor_moved_events: EventReader<CursorMoved>,mut query: Query<&mut Character>) {
+fn follow_mouse(
+    mut cursor_moved_events: EventReader<CursorMoved>,
+    mut query: Query<&mut Character>,
+) {
     for event in cursor_moved_events.iter() {
         let mut character = query.single_mut();
         character.mouse.x = event.position.x;
@@ -129,12 +145,12 @@ fn follow_mouse(mut cursor_moved_events: EventReader<CursorMoved>,mut query: Que
 fn follow_keyboard(
     time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<&mut Character>
+    mut query: Query<&mut Character>,
 ) {
     let mut character = query.single_mut();
 
     let delta_seconds = time.delta_seconds();
-    
+
     if keyboard_input.pressed(KeyCode::Up) || keyboard_input.pressed(KeyCode::W) {
         character.speed.y = MAX_SPEED * delta_seconds;
     }
@@ -176,8 +192,7 @@ pub struct CharacterPlugin;
 
 impl Plugin for CharacterPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_system_set(SystemSet::on_enter(AppState::Main).with_system(setup))
+        app.add_system_set(SystemSet::on_enter(AppState::Main).with_system(setup))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(animate))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(transform_changed))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(follow_mouse))
