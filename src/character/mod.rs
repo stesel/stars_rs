@@ -10,12 +10,16 @@ use crate::{
 #[derive(Component, Deref, DerefMut)]
 struct CharacterAnimationTimer(Timer);
 
+#[derive(Component, Deref, DerefMut)]
+pub struct CharacterActive(bool);
+#[derive(Component, Deref, DerefMut)]
+struct CharacterInactiveTimer(Timer);
+
 #[derive(Component)]
 pub struct Character {
     position: Vec2,
     speed: Vec2,
     mouse: Vec2,
-    active: bool,
 }
 
 static CHARACTER_SIZE: Size = Size {
@@ -25,6 +29,8 @@ static CHARACTER_SIZE: Size = Size {
 static MAX_SPEED: f32 = 150.0;
 static FRICTION: f32 = 0.96;
 
+static INACTIVE_DURATION: f32 = 3.0;
+
 const CHARACTER_COLOR: Color = Color::rgba(0.0, 0.0, 0.0, 1.0);
 
 impl Default for Character {
@@ -33,7 +39,6 @@ impl Default for Character {
             position: Vec2::new(0.0, 0.0),
             speed: Vec2::new(0.0, 0.0),
             mouse: Vec2::new(WINDOW_SIZE.width / 2.0, WINDOW_SIZE.height / 2.0),
-            active: true,
         }
     }
 }
@@ -55,13 +60,13 @@ impl SetSpeed for Character {
     }
 }
 
-impl IsActive for Character {
+impl IsActive for CharacterActive {
     fn get_active(&self) -> bool {
-        self.active
+        self.0
     }
 
     fn set_active(&mut self, active: bool) {
-        self.active = active;
+        self.0 = active;
     }
 }
 
@@ -90,6 +95,11 @@ fn setup(
             ..default()
         })
         .insert(CharacterAnimationTimer(Timer::from_seconds(0.05, true)))
+        .insert(CharacterActive(true))
+        .insert(CharacterInactiveTimer(Timer::from_seconds(
+            INACTIVE_DURATION,
+            false,
+        )))
         .insert(Character::default());
 }
 
@@ -128,6 +138,42 @@ fn transform_changed(
             position: Vec2::new(character.position.x, character.position.y),
             rotation: rotation_z,
         });
+    }
+}
+
+fn active_changed(
+    mut query: Query<
+        (
+            &CharacterActive,
+            &mut CharacterInactiveTimer,
+            &mut TextureAtlasSprite,
+        ),
+        Changed<CharacterActive>,
+    >,
+) {
+    for (character_active, mut inactive_timer, mut sprite) in query.iter_mut() {
+        if character_active.get_active() == false {
+            inactive_timer.reset();
+            sprite.color.set_a(0.8);
+        }
+    }
+}
+
+fn inactive_timer_changed(
+    time: Res<Time>,
+    mut query: Query<(
+        &mut CharacterActive,
+        &mut CharacterInactiveTimer,
+        &mut TextureAtlasSprite,
+    )>,
+) {
+    for (mut character_active, mut inactive_timer, mut sprite) in query.iter_mut() {
+        if character_active.get_active() == false
+            && inactive_timer.tick(time.delta()).just_finished()
+        {
+            character_active.set_active(true);
+            sprite.color.set_a(1.0);
+        }
     }
 }
 
@@ -195,6 +241,10 @@ impl Plugin for CharacterPlugin {
         app.add_system_set(SystemSet::on_enter(AppState::Main).with_system(setup))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(animate))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(transform_changed))
+            .add_system_set(SystemSet::on_update(AppState::Main).with_system(active_changed))
+            .add_system_set(
+                SystemSet::on_update(AppState::Main).with_system(inactive_timer_changed),
+            )
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(follow_mouse))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(follow_keyboard));
     }
