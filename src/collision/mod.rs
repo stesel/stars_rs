@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     bullet::Bullet,
-    character::Character,
+    character::{Character, CharacterActive},
     enemies::{Enemy, EnemyCount},
     events::AddExplosionEvent,
     state::AppState,
@@ -10,17 +10,17 @@ use crate::{
 };
 
 fn check_character_collision(
-    mut character_query: Query<&mut Character>,
+    mut character_query: Query<(&mut Character, &mut CharacterActive)>,
     enemy_query: Query<&Enemy>,
 ) {
-    let mut character = character_query.single_mut();
+    let (mut character, mut character_active) = character_query.single_mut();
 
     for enemy in enemy_query.iter() {
-        if character.get_active()
+        if character_active.get_active()
             && hit_test(character.get_bounding_rect(), enemy.get_bounding_rect())
         {
             character.set_speed(enemy.speed * 0.02);
-            character.set_active(false);
+            character_active.set_active(false);
         }
     }
 }
