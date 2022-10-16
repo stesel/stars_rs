@@ -30,7 +30,7 @@ fn check_character_collision(
 }
 
 fn check_bullet_collision(
-    mut bullet_query: Query<&mut Bullet>,
+    bullet_query: Query<(Entity, &Bullet)>,
     enemy_query: Query<(Entity, &Enemy)>,
     mut enemy_count_query: Query<&mut EnemyCount>,
     mut add_explosion_events: EventWriter<AddExplosionEvent>,
@@ -38,18 +38,17 @@ fn check_bullet_collision(
     loader: ResMut<LoaderState>,
     audio: Res<Audio>,
 ) {
-    for mut bullet in bullet_query.iter_mut() {
-        for (entity, enemy) in enemy_query.iter() {
-            if bullet.get_active()
-                && hit_test(bullet.get_bounding_rect(), enemy.get_bounding_rect())
+    for (bullet_entity, bullet) in bullet_query.iter() {
+        for (enemy_entity, enemy) in enemy_query.iter() {
+            if hit_test(bullet.get_bounding_rect(), enemy.get_bounding_rect())
             {
                 add_explosion_events.send(AddExplosionEvent {
                     position: enemy.position,
                 });
                 let mut enemy_count = enemy_count_query.single_mut();
                 enemy_count.remove();
-                commands.entity(entity).despawn();
-                bullet.set_active(false);
+                commands.entity(enemy_entity).despawn();
+                commands.entity(bullet_entity).despawn();
 
                 audio.play(loader.explosion_sound.clone());
             }
