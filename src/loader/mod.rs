@@ -11,7 +11,7 @@ use crate::{
 struct LoaderSprite;
 
 fn load(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let loader_entity = commands
+    commands
         .spawn_bundle(SpriteBundle {
             sprite: Sprite {
                 color: Color::rgb(251.0, 226.0, 196.0),
@@ -21,24 +21,30 @@ fn load(mut commands: Commands, asset_server: Res<AssetServer>) {
             transform: Transform::from_xyz(0.0, 0.0, POSITION_Z.loader),
             ..default()
         })
-        .insert(LoaderSprite)
-        .id();
+        .insert(LoaderSprite);
 
     let background_image: Handle<Image> = asset_server.load("background.png");
     let enemy_image: Handle<Image> = asset_server.load("enemy.png");
     let character_image: Handle<Image> = asset_server.load("character.png");
     let explosion_image: Handle<Image> = asset_server.load("explosion.png");
     let aim_image: Handle<Image> = asset_server.load("aim.png");
+    let button_sound: Handle<AudioSource> = asset_server.load("button.ogg");
+    let bullet_sound: Handle<AudioSource> = asset_server.load("bullet.ogg");
+    let collision_sound: Handle<AudioSource> = asset_server.load("collision.ogg");
+    let explosion_sound: Handle<AudioSource> = asset_server.load("explosion.ogg");
     let font: Handle<Font> = asset_server.load("FiraMono-Medium.ttf");
 
     commands.insert_resource(LoaderState {
-        loader_entity: loader_entity,
-        background_image: background_image,
-        enemy_image: enemy_image,
-        character_image: character_image,
-        explosion_image: explosion_image,
-        aim_image: aim_image,
-        font: font,
+        background_image,
+        enemy_image,
+        character_image,
+        explosion_image,
+        aim_image,
+        button_sound,
+        bullet_sound,
+        collision_sound,
+        explosion_sound,
+        font,
     });
 }
 
@@ -62,8 +68,10 @@ fn loading(
     }
 }
 
-fn loaded(mut commands: Commands, loader: Res<LoaderState>) {
-    commands.entity(loader.loader_entity).despawn();
+fn loaded(mut commands: Commands, query: Query<(Entity, &LoaderSprite)>) {
+    for (entity, _) in query.iter() {
+        commands.entity(entity).despawn();
+    }
 }
 
 pub struct LoaderPlugin;
