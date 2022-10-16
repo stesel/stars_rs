@@ -40,8 +40,7 @@ fn check_bullet_collision(
 ) {
     for (bullet_entity, bullet) in bullet_query.iter() {
         for (enemy_entity, enemy) in enemy_query.iter() {
-            if hit_test(bullet.get_bounding_rect(), enemy.get_bounding_rect())
-            {
+            if hit_test(bullet.get_bounding_rect(), enemy.get_bounding_rect()) {
                 add_explosion_events.send(AddExplosionEvent {
                     position: enemy.position,
                 });
