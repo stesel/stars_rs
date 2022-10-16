@@ -3,7 +3,7 @@ use bevy::{prelude::*, utils::Duration};
 use crate::{
     consts::{POSITION_Z, WINDOW_SIZE},
     events::TransformEvent,
-    state::AppState,
+    state::{AppState, LoaderState},
     utils::{BoundingRect, GetBoundingRect, IsActive},
 };
 
@@ -89,6 +89,8 @@ fn handle_transform(
 fn update_bullet(
     mouse_button_input: Res<Input<MouseButton>>,
     time: Res<Time>,
+    loader: ResMut<LoaderState>,
+    audio: Res<Audio>,
     mut query: Query<(&mut Bullet, &mut Transform)>,
 ) {
     let delta_seconds = time.delta_seconds();
@@ -115,6 +117,8 @@ fn update_bullet(
                 }
 
                 bullet.timer.reset();
+
+                audio.play(loader.bullet_sound.clone());
             }
         }
 

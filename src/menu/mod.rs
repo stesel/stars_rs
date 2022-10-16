@@ -18,12 +18,16 @@ fn button_system(
         (Changed<Interaction>, With<Button>),
     >,
     mut state: ResMut<State<AppState>>,
+    loader: ResMut<LoaderState>,
+    audio: Res<Audio>,
 ) {
     for (interaction, mut color) in interaction_query.iter_mut() {
         match *interaction {
             Interaction::Clicked => {
                 *color = PRESSED_BUTTON.into();
                 state.set(AppState::Main).unwrap();
+
+                audio.play(loader.button_sound.clone());
             }
             Interaction::Hovered => {
                 *color = HOVERED_BUTTON.into();

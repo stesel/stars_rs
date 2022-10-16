@@ -5,13 +5,15 @@ use crate::{
     character::{Character, CharacterActive},
     enemies::{Enemy, EnemyCount},
     events::AddExplosionEvent,
-    state::AppState,
+    state::{AppState, LoaderState},
     utils::{hit_test, GetBoundingRect, IsActive, SetSpeed},
 };
 
 fn check_character_collision(
     mut character_query: Query<(&mut Character, &mut CharacterActive)>,
     enemy_query: Query<&Enemy>,
+    loader: ResMut<LoaderState>,
+    audio: Res<Audio>,
 ) {
     let (mut character, mut character_active) = character_query.single_mut();
 
@@ -21,6 +23,8 @@ fn check_character_collision(
         {
             character.set_speed(enemy.speed * 0.02);
             character_active.set_active(false);
+
+            audio.play(loader.collision_sound.clone());
         }
     }
 }
@@ -31,6 +35,8 @@ fn check_bullet_collision(
     mut enemy_count_query: Query<&mut EnemyCount>,
     mut add_explosion_events: EventWriter<AddExplosionEvent>,
     mut commands: Commands,
+    loader: ResMut<LoaderState>,
+    audio: Res<Audio>,
 ) {
     for mut bullet in bullet_query.iter_mut() {
         for (entity, enemy) in enemy_query.iter() {
@@ -44,6 +50,8 @@ fn check_bullet_collision(
                 enemy_count.remove();
                 commands.entity(entity).despawn();
                 bullet.set_active(false);
+
+                audio.play(loader.explosion_sound.clone());
             }
         }
     }
