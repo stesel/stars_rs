@@ -6,6 +6,7 @@ mod camera;
 mod character;
 mod collision;
 mod enemies;
+mod enemies_left;
 mod events;
 mod explosion;
 mod fps;
@@ -39,5 +40,6 @@ fn main() {
         .add_plugin(rain::RainPlugin)
         .add_plugin(aim::AimPlugin)
         .add_plugin(fps::FpsTextPlugin)
+        .add_plugin(enemies_left::EnemiesLeftTextPlugin)
         .run();
 }

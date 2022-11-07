@@ -4,7 +4,7 @@ use crate::{
     bullet::Bullet,
     character::{Character, CharacterActive},
     enemies::{Enemy, EnemyCount},
-    events::AddExplosionEvent,
+    events::{AddExplosionEvent, EnemiesLeftEvent},
     state::{AppState, LoaderState},
     utils::{hit_test, GetBoundingRect, IsActive, SetSpeed},
 };
@@ -34,6 +34,7 @@ fn check_bullet_collision(
     enemy_query: Query<(Entity, &Enemy)>,
     mut enemy_count_query: Query<&mut EnemyCount>,
     mut add_explosion_events: EventWriter<AddExplosionEvent>,
+    mut enemies_left_events: EventWriter<EnemiesLeftEvent>,
     mut commands: Commands,
     loader: ResMut<LoaderState>,
     audio: Res<Audio>,
@@ -44,8 +45,13 @@ fn check_bullet_collision(
                 add_explosion_events.send(AddExplosionEvent {
                     position: enemy.position,
                 });
+
                 let mut enemy_count = enemy_count_query.single_mut();
                 enemy_count.remove();
+                enemies_left_events.send(EnemiesLeftEvent {
+                    enemies_left: enemy_count.count,
+                });
+
                 commands.entity(enemy_entity).despawn();
                 commands.entity(bullet_entity).despawn();
 
