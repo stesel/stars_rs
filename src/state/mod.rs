@@ -35,11 +35,6 @@ impl LoaderState {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct GameState {
-    pub enemies_left: u32,
-}
-
 pub struct StatePlugin;
 
 impl Plugin for StatePlugin {
