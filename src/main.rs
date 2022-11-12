@@ -4,8 +4,10 @@ mod background;
 mod bullet;
 mod camera;
 mod character;
+mod character_lifes;
 mod collision;
 mod enemies;
+mod enemies_left;
 mod events;
 mod explosion;
 mod fps;
@@ -39,5 +41,7 @@ fn main() {
         .add_plugin(rain::RainPlugin)
         .add_plugin(aim::AimPlugin)
         .add_plugin(fps::FpsTextPlugin)
+        .add_plugin(enemies_left::EnemiesLeftTextPlugin)
+        .add_plugin(character_lifes::CharacterLifesTextPlugin)
         .run();
 }

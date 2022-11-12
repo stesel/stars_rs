@@ -2,29 +2,48 @@ use bevy::prelude::*;
 
 use crate::{
     bullet::Bullet,
-    character::{Character, CharacterActive},
+    character::{Character, CharacterActive, CharacterLifes},
     enemies::{Enemy, EnemyCount},
-    events::AddExplosionEvent,
+    events::{AddExplosionEvent, CharacterLifesEvent, EnemiesLeftEvent},
     state::{AppState, LoaderState},
     utils::{hit_test, GetBoundingRect, IsActive, SetSpeed},
 };
 
 fn check_character_collision(
-    mut character_query: Query<(&mut Character, &mut CharacterActive)>,
+    mut character_query: Query<(Entity, &mut Character, &mut CharacterActive)>,
+    mut character_lifes_query: Query<&mut CharacterLifes>,
+    mut character_lifes_events: EventWriter<CharacterLifesEvent>,
+    mut add_explosion_events: EventWriter<AddExplosionEvent>,
+    mut commands: Commands,
     enemy_query: Query<&Enemy>,
     loader: ResMut<LoaderState>,
     audio: Res<Audio>,
 ) {
-    let (mut character, mut character_active) = character_query.single_mut();
+    for (character_entity, mut character, mut character_active) in character_query.iter_mut() {
+        for enemy in enemy_query.iter() {
+            if character_active.get_active()
+                && hit_test(character.get_bounding_rect(), enemy.get_bounding_rect())
+            {
+                character_active.set_active(false);
+                let mut character_lifes = character_lifes_query.single_mut();
+                character_lifes.decrease();
+                character_lifes_events.send(CharacterLifesEvent {
+                    character_lifes: character_lifes.lifes,
+                });
 
-    for enemy in enemy_query.iter() {
-        if character_active.get_active()
-            && hit_test(character.get_bounding_rect(), enemy.get_bounding_rect())
-        {
-            character.set_speed(enemy.speed * 0.02);
-            character_active.set_active(false);
+                if character_lifes.lifes > 0 {
+                    character.set_speed(enemy.speed * 0.02);
+                    audio.play(loader.collision_sound.clone());
+                } else {
+                    add_explosion_events.send(AddExplosionEvent {
+                        position: character.position,
+                    });
 
-            audio.play(loader.collision_sound.clone());
+                    commands.entity(character_entity).despawn();
+
+                    audio.play(loader.explosion_sound.clone());
+                }
+            }
         }
     }
 }
@@ -34,6 +53,7 @@ fn check_bullet_collision(
     enemy_query: Query<(Entity, &Enemy)>,
     mut enemy_count_query: Query<&mut EnemyCount>,
     mut add_explosion_events: EventWriter<AddExplosionEvent>,
+    mut enemies_left_events: EventWriter<EnemiesLeftEvent>,
     mut commands: Commands,
     loader: ResMut<LoaderState>,
     audio: Res<Audio>,
@@ -44,8 +64,13 @@ fn check_bullet_collision(
                 add_explosion_events.send(AddExplosionEvent {
                     position: enemy.position,
                 });
+
                 let mut enemy_count = enemy_count_query.single_mut();
                 enemy_count.remove();
+                enemies_left_events.send(EnemiesLeftEvent {
+                    enemies_left: enemy_count.count,
+                });
+
                 commands.entity(enemy_entity).despawn();
                 commands.entity(bullet_entity).despawn();
 

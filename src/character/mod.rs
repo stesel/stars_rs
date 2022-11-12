@@ -2,7 +2,7 @@ use bevy::{input::keyboard::KeyCode, prelude::*};
 
 use crate::{
     consts::{POSITION_Z, WINDOW_SIZE},
-    events::TransformEvent,
+    events::{CharacterLifesEvent, TransformEvent},
     state::{AppState, LoaderState},
     utils::{BoundingRect, GetBoundingRect, IsActive, SetSpeed},
 };
@@ -17,11 +17,23 @@ struct CharacterInactiveTimer(Timer);
 
 #[derive(Component)]
 pub struct Character {
-    position: Vec2,
+    pub position: Vec2,
     speed: Vec2,
     mouse: Vec2,
 }
 
+#[derive(Component, Deref, DerefMut)]
+pub struct CharacterLifes {
+    pub lifes: u32,
+}
+
+impl CharacterLifes {
+    pub fn decrease(&mut self) {
+        self.lifes = self.lifes - 1;
+    }
+}
+
+static CHARACTER_LIFES: u32 = 3;
 static CHARACTER_SIZE: Size = Size {
     width: 128.0,
     height: 128.0,
@@ -68,6 +80,19 @@ impl IsActive for CharacterActive {
     fn set_active(&mut self, active: bool) {
         self.0 = active;
     }
+}
+
+fn setup_lifes(
+    mut commands: Commands,
+    mut character_lifes_events: EventWriter<CharacterLifesEvent>,
+) {
+    let lifes = CHARACTER_LIFES;
+
+    commands.spawn().insert(CharacterLifes { lifes });
+
+    character_lifes_events.send(CharacterLifesEvent {
+        character_lifes: lifes,
+    });
 }
 
 fn setup(
@@ -182,9 +207,10 @@ fn follow_mouse(
     mut query: Query<&mut Character>,
 ) {
     for event in cursor_moved_events.iter() {
-        let mut character = query.single_mut();
-        character.mouse.x = event.position.x;
-        character.mouse.y = event.position.y;
+        for mut character in query.iter_mut() {
+            character.mouse.x = event.position.x;
+            character.mouse.y = event.position.y;
+        }
     }
 }
 
@@ -193,52 +219,53 @@ fn follow_keyboard(
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<&mut Character>,
 ) {
-    let mut character = query.single_mut();
+    for mut character in query.iter_mut() {
+        let delta_seconds = time.delta_seconds();
 
-    let delta_seconds = time.delta_seconds();
+        if keyboard_input.pressed(KeyCode::Up) || keyboard_input.pressed(KeyCode::W) {
+            character.speed.y = MAX_SPEED * delta_seconds;
+        }
 
-    if keyboard_input.pressed(KeyCode::Up) || keyboard_input.pressed(KeyCode::W) {
-        character.speed.y = MAX_SPEED * delta_seconds;
+        if keyboard_input.pressed(KeyCode::Down) || keyboard_input.pressed(KeyCode::S) {
+            character.speed.y = -MAX_SPEED * delta_seconds;
+        }
+
+        if keyboard_input.pressed(KeyCode::Right) || keyboard_input.pressed(KeyCode::D) {
+            character.speed.x = MAX_SPEED * delta_seconds;
+        }
+
+        if keyboard_input.pressed(KeyCode::Left) || keyboard_input.pressed(KeyCode::A) {
+            character.speed.x = -MAX_SPEED * delta_seconds;
+        }
+
+        character.position.x += character.speed.x;
+        character.position.y += character.speed.y;
+
+        let max_x = WINDOW_SIZE.width / 2.0;
+        let max_y = WINDOW_SIZE.height / 2.0;
+
+        if character.position.x > max_x {
+            character.position.x = max_x;
+        } else if character.position.x < -max_x {
+            character.position.x = -max_x;
+        }
+
+        if character.position.y > max_y {
+            character.position.y = max_y;
+        } else if character.position.y < -max_y {
+            character.position.y = -max_y;
+        }
+
+        character.speed *= FRICTION;
     }
-
-    if keyboard_input.pressed(KeyCode::Down) || keyboard_input.pressed(KeyCode::S) {
-        character.speed.y = -MAX_SPEED * delta_seconds;
-    }
-
-    if keyboard_input.pressed(KeyCode::Right) || keyboard_input.pressed(KeyCode::D) {
-        character.speed.x = MAX_SPEED * delta_seconds;
-    }
-
-    if keyboard_input.pressed(KeyCode::Left) || keyboard_input.pressed(KeyCode::A) {
-        character.speed.x = -MAX_SPEED * delta_seconds;
-    }
-
-    character.position.x += character.speed.x;
-    character.position.y += character.speed.y;
-
-    let max_x = WINDOW_SIZE.width / 2.0;
-    let max_y = WINDOW_SIZE.height / 2.0;
-
-    if character.position.x > max_x {
-        character.position.x = max_x;
-    } else if character.position.x < -max_x {
-        character.position.x = -max_x;
-    }
-
-    if character.position.y > max_y {
-        character.position.y = max_y;
-    } else if character.position.y < -max_y {
-        character.position.y = -max_y;
-    }
-
-    character.speed *= FRICTION;
 }
 
 pub struct CharacterPlugin;
 
 impl Plugin for CharacterPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(AppState::Main).with_system(setup))
+        app.add_startup_system(setup_lifes)
+            .add_system_set(SystemSet::on_enter(AppState::Main).with_system(setup))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(animate))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(transform_changed))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(active_changed))

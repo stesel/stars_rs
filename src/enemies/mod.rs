@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     consts::{POSITION_Z, WINDOW_SIZE},
+    events::EnemiesLeftEvent,
     state::{AppState, LoaderState},
     utils::{random_in_range, random_in_rect_edge, BoundingRect, GetBoundingRect, Position},
 };
@@ -21,7 +22,7 @@ static ENEMY_COUNT: u32 = 5;
 #[derive(Component, Deref, DerefMut)]
 struct EnemyAnimationTimer(Timer);
 
-#[derive(Component)]
+#[derive(Component, Deref, DerefMut)]
 pub struct EnemyCount {
     pub count: u32,
 }
@@ -101,6 +102,16 @@ fn get_rotation_z(speed: &Vec2) -> f32 {
     -speed.x.atan2(speed.y)
 }
 
+fn add_enemy_count(mut commands: Commands, mut enemies_left_events: EventWriter<EnemiesLeftEvent>) {
+    let count = ENEMY_COUNT;
+
+    commands.spawn().insert(EnemyCount { count });
+
+    enemies_left_events.send(EnemiesLeftEvent {
+        enemies_left: count,
+    });
+}
+
 fn add_enemies(
     mut commands: Commands,
     loader: Res<LoaderState>,
@@ -113,9 +124,8 @@ fn add_enemies(
         5,
         1,
     );
-    let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
-    commands.spawn().insert(EnemyCount { count: ENEMY_COUNT });
+    let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
     for _ in 0..ENEMY_COUNT {
         let position = get_position();
@@ -190,7 +200,8 @@ pub struct EnemiesPlugin;
 
 impl Plugin for EnemiesPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(AppState::Main).with_system(add_enemies))
+        app.add_startup_system(add_enemy_count)
+            .add_system_set(SystemSet::on_enter(AppState::Main).with_system(add_enemies))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(animate))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(update_enemies))
             .add_system_set(SystemSet::on_update(AppState::Main).with_system(position_changed));
