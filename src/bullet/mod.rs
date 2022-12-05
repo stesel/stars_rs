@@ -1,14 +1,14 @@
-use bevy::{prelude::*, utils::Duration};
-
+use crate::utils;
 use crate::{
     consts::{POSITION_Z, WINDOW_SIZE},
     events::TransformEvent,
     state::{AppState, LoaderState},
     utils::{BoundingRect, GetBoundingRect},
 };
+use bevy::{prelude::*, utils::Duration};
 
 static BULLET_SPEED: f32 = 300.0;
-static BULLET_SIZE: Size = Size {
+static BULLET_SIZE: utils::Size = utils::Size {
     width: 5.0,
     height: 20.0,
 };
@@ -40,8 +40,8 @@ impl GetBoundingRect for Bullet {
 }
 
 fn setup_bullet_pool(mut commands: Commands) {
-    commands.spawn().insert(BulletPool {
-        timer: Timer::from_seconds(BULLET_INITIAL_DELAY, false),
+    commands.spawn_empty().insert(BulletPool {
+        timer: Timer::from_seconds(BULLET_INITIAL_DELAY, TimerMode::Once),
         position: Vec2::new(0.0, 0.0),
         rotation: 0.0,
     });
@@ -80,7 +80,7 @@ fn update_bullet_pool(
             );
 
             commands
-                .spawn_bundle(SpriteBundle {
+                .spawn(SpriteBundle {
                     sprite: Sprite {
                         color: Color::rgba(1.0, 0.0, 1.0, 0.8),
                         custom_size: Some(Vec2::new(BULLET_SIZE.width, BULLET_SIZE.height)),

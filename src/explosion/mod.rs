@@ -1,17 +1,18 @@
-use bevy::prelude::*;
-
 use crate::{
     consts::POSITION_Z,
     events::AddExplosionEvent,
     state::{AppState, LoaderState},
+    utils,
 };
+use bevy::prelude::*;
+
 #[derive(Component, Deref, DerefMut)]
 struct ExplosionAnimationTimer(Timer);
 
 #[derive(Component)]
 struct Explosion;
 
-static EXPLOSION_SIZE: Size = Size {
+static EXPLOSION_SIZE: utils::Size = utils::Size {
     width: 128.0,
     height: 128.0,
 };
@@ -37,17 +38,22 @@ fn add_explosion(
             Vec2::new(EXPLOSION_SIZE.width, EXPLOSION_SIZE.height),
             5,
             1,
+            Option::None,
+            Option::None,
         );
         let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
         commands
-            .spawn_bundle(SpriteSheetBundle {
+            .spawn(SpriteSheetBundle {
                 sprite: TextureAtlasSprite { ..default() },
                 texture_atlas: texture_atlas_handle,
                 transform: Transform::from_xyz(position.x, position.y, POSITION_Z.explosion),
                 ..default()
             })
-            .insert(ExplosionAnimationTimer(Timer::from_seconds(0.08, true)))
+            .insert(ExplosionAnimationTimer(Timer::from_seconds(
+                0.08,
+                TimerMode::Repeating,
+            )))
             .insert(Explosion::default());
     }
 }

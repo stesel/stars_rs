@@ -1,15 +1,15 @@
-use bevy::prelude::*;
-
+use crate::utils;
 use crate::{
     consts::{POSITION_Z, WINDOW_SIZE},
     state::AppState,
     utils::random_in_range,
 };
+use bevy::prelude::*;
 
 static SPEED_X: f32 = 10.0;
 static MIN_SPEED_Y: f32 = 130.0;
 static MAX_SPEED_Y: f32 = 40.0;
-static DROP_SIZE: Size = Size {
+static DROP_SIZE: utils::Size = utils::Size {
     width: 2.0,
     height: 8.0,
 };
@@ -53,7 +53,7 @@ fn add_rain(mut commands: Commands) {
     for _ in 0..DROP_COUNT {
         let position = get_initial_position();
         commands
-            .spawn_bundle(SpriteBundle {
+            .spawn(SpriteBundle {
                 sprite: Sprite {
                     color: Color::rgba(200.0, 200.0, 200.0, 0.05),
                     custom_size: Some(Vec2::new(DROP_SIZE.width, DROP_SIZE.height)),

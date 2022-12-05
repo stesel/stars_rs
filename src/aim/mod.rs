@@ -1,16 +1,15 @@
-use bevy::prelude::*;
-
 use crate::{
     consts::{POSITION_Z, WINDOW_SIZE},
     state::{AppState, LoaderState},
 };
+use bevy::prelude::*;
 
 #[derive(Component)]
 struct Aim;
 
 fn setup(mut commands: Commands, loader: Res<LoaderState>) {
     commands
-        .spawn_bundle(SpriteBundle {
+        .spawn(SpriteBundle {
             texture: loader.aim_image.clone(),
             transform: Transform::from_xyz(0.0, 0.0, POSITION_Z.aim),
             ..default()

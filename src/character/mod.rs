@@ -1,11 +1,11 @@
-use bevy::{input::keyboard::KeyCode, prelude::*};
-
+use crate::utils;
 use crate::{
     consts::{POSITION_Z, WINDOW_SIZE},
     events::{CharacterLifesEvent, TransformEvent},
     state::{AppState, LoaderState},
     utils::{BoundingRect, GetBoundingRect, IsActive, SetSpeed},
 };
+use bevy::{input::keyboard::KeyCode, prelude::*};
 
 #[derive(Component, Deref, DerefMut)]
 struct CharacterAnimationTimer(Timer);
@@ -34,7 +34,7 @@ impl CharacterLifes {
 }
 
 static CHARACTER_LIFES: u32 = 3;
-static CHARACTER_SIZE: Size = Size {
+static CHARACTER_SIZE: utils::Size = utils::Size {
     width: 128.0,
     height: 128.0,
 };
@@ -88,7 +88,7 @@ fn setup_lifes(
 ) {
     let lifes = CHARACTER_LIFES;
 
-    commands.spawn().insert(CharacterLifes { lifes });
+    commands.spawn_empty().insert(CharacterLifes { lifes });
 
     character_lifes_events.send(CharacterLifesEvent {
         character_lifes: lifes,
@@ -106,11 +106,13 @@ fn setup(
         Vec2::new(CHARACTER_SIZE.width, CHARACTER_SIZE.height),
         5,
         1,
+        Option::None,
+        Option::None,
     );
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
 
     commands
-        .spawn_bundle(SpriteSheetBundle {
+        .spawn(SpriteSheetBundle {
             sprite: TextureAtlasSprite {
                 color: CHARACTER_COLOR,
                 ..default()
@@ -119,11 +121,14 @@ fn setup(
             transform: Transform::from_xyz(0.0, 0.0, POSITION_Z.character),
             ..default()
         })
-        .insert(CharacterAnimationTimer(Timer::from_seconds(0.05, true)))
+        .insert(CharacterAnimationTimer(Timer::from_seconds(
+            0.05,
+            TimerMode::Repeating,
+        )))
         .insert(CharacterActive(true))
         .insert(CharacterInactiveTimer(Timer::from_seconds(
             INACTIVE_DURATION,
-            false,
+            TimerMode::Once,
         )))
         .insert(Character::default());
 }

@@ -1,11 +1,10 @@
-use bevy::prelude::*;
-
 use crate::{
     character::CharacterLifes,
     consts::{POSITION_Z, WINDOW_SIZE},
     events::CharacterLifesEvent,
     state::{AppState, LoaderState},
 };
+use bevy::prelude::*;
 
 #[derive(Component)]
 struct CharacterLifesText;
@@ -24,7 +23,7 @@ fn add_character_lifes_text(
     let character_lifes = character_lifes_query.single();
 
     commands
-        .spawn_bundle(Text2dBundle {
+        .spawn(Text2dBundle {
             text: Text {
                 sections: vec![
                     TextSection {

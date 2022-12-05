@@ -14,6 +14,18 @@ pub struct Position {
 }
 
 /// ```
+/// use stars_rs::utils::Size;
+///
+/// fn main() {
+///     let size = Size { width: 1.0, height: 2.0 };
+/// }
+/// ```
+pub struct Size {
+    pub width: f32,
+    pub height: f32,
+}
+
+/// ```
 /// use stars_rs::utils::BoundingRect;
 ///
 /// fn main() {

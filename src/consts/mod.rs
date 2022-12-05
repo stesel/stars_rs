@@ -1,4 +1,4 @@
-use bevy::ui::Size;
+use stars_rs::utils::Size;
 
 pub static WINDOW_SIZE: Size = Size {
     width: 600.0,
