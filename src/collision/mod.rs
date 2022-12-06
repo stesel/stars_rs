@@ -1,5 +1,3 @@
-use bevy::prelude::*;
-
 use crate::{
     bullet::Bullet,
     character::{Character, CharacterActive, CharacterLifes},
@@ -8,6 +6,7 @@ use crate::{
     state::{AppState, LoaderState},
     utils::{hit_test, GetBoundingRect, IsActive, SetSpeed},
 };
+use bevy::prelude::*;
 
 fn check_character_collision(
     mut character_query: Query<(Entity, &mut Character, &mut CharacterActive)>,

@@ -1,9 +1,8 @@
-use bevy::prelude::*;
-
 use crate::{
     consts::POSITION_Z,
     state::{AppState, LoaderState},
 };
+use bevy::prelude::*;
 
 const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.6, 0.25);
@@ -14,7 +13,7 @@ struct MenuButton;
 
 fn button_system(
     mut interaction_query: Query<
-        (&Interaction, &mut UiColor),
+        (&Interaction, &mut BackgroundColor),
         (Changed<Interaction>, With<Button>),
     >,
     mut state: ResMut<State<AppState>>,
@@ -41,7 +40,7 @@ fn button_system(
 
 fn setup(mut commands: Commands, loader: Res<LoaderState>) {
     commands
-        .spawn_bundle(ButtonBundle {
+        .spawn(ButtonBundle {
             style: Style {
                 size: Size::new(Val::Px(150.0), Val::Px(65.0)),
                 // center button
@@ -52,12 +51,12 @@ fn setup(mut commands: Commands, loader: Res<LoaderState>) {
                 align_items: AlignItems::Center,
                 ..default()
             },
-            color: NORMAL_BUTTON.into(),
+            background_color: NORMAL_BUTTON.into(),
             transform: Transform::from_xyz(0.0, 0.0, POSITION_Z.menu),
             ..default()
         })
         .with_children(|parent| {
-            parent.spawn_bundle(TextBundle {
+            parent.spawn(TextBundle {
                 text: Text::from_section(
                     "Start",
                     TextStyle {

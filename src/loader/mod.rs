@@ -1,18 +1,16 @@
-use std::f32::consts::PI;
-
-use bevy::{asset::LoadState, prelude::*};
-
 use crate::{
     consts::POSITION_Z,
     state::{AppState, LoaderState},
 };
+use bevy::{asset::LoadState, prelude::*};
+use std::f32::consts::PI;
 
 #[derive(Component)]
 struct LoaderSprite;
 
 fn load(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
-        .spawn_bundle(SpriteBundle {
+        .spawn(SpriteBundle {
             sprite: Sprite {
                 color: Color::rgb(251.0, 226.0, 196.0),
                 custom_size: Some(Vec2::new(50.0, 50.0)),
@@ -58,8 +56,7 @@ fn loading(
     match asset_server.get_group_load_state(loader.ids()) {
         LoadState::Loading => {
             let mut transform = query.single_mut();
-            transform.rotation =
-                Quat::from_rotation_z((time.seconds_since_startup().cos() as f32) * PI);
+            transform.rotation = Quat::from_rotation_z(time.elapsed_seconds().cos() * PI);
         }
         LoadState::Loaded => {
             state.set(AppState::Menu).unwrap();

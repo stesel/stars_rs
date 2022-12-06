@@ -1,15 +1,15 @@
-use bevy::prelude::*;
-
+use crate::utils;
 use crate::{
     consts::{POSITION_Z, WINDOW_SIZE},
     events::EnemiesLeftEvent,
     state::{AppState, LoaderState},
     utils::{random_in_range, random_in_rect_edge, BoundingRect, GetBoundingRect, Position},
 };
+use bevy::prelude::*;
 
 static MIN_SPEED: f32 = 100.0;
 static MAX_SPEED: f32 = 200.0;
-pub static ENEMY_SIZE: Size = Size {
+pub static ENEMY_SIZE: utils::Size = utils::Size {
     width: 128.0,
     height: 128.0,
 };
@@ -105,7 +105,7 @@ fn get_rotation_z(speed: &Vec2) -> f32 {
 fn add_enemy_count(mut commands: Commands, mut enemies_left_events: EventWriter<EnemiesLeftEvent>) {
     let count = ENEMY_COUNT;
 
-    commands.spawn().insert(EnemyCount { count });
+    commands.spawn_empty().insert(EnemyCount { count });
 
     enemies_left_events.send(EnemiesLeftEvent {
         enemies_left: count,
@@ -123,6 +123,8 @@ fn add_enemies(
         Vec2::new(ENEMY_SIZE.width, ENEMY_SIZE.height),
         5,
         1,
+        Option::None,
+        Option::None,
     );
 
     let texture_atlas_handle = texture_atlases.add(texture_atlas);
@@ -133,13 +135,16 @@ fn add_enemies(
         let rotation_z = get_rotation_z(&speed);
 
         commands
-            .spawn_bundle(SpriteSheetBundle {
+            .spawn(SpriteSheetBundle {
                 texture_atlas: texture_atlas_handle.clone(),
                 transform: Transform::from_xyz(position.x, position.y, POSITION_Z.enemy)
                     .with_rotation(Quat::from_rotation_z(rotation_z)),
                 ..default()
             })
-            .insert(EnemyAnimationTimer(Timer::from_seconds(0.07, true)))
+            .insert(EnemyAnimationTimer(Timer::from_seconds(
+                0.07,
+                TimerMode::Repeating,
+            )))
             .insert(Enemy::new(position, speed));
     }
 }

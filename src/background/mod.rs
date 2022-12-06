@@ -1,10 +1,9 @@
-use bevy::prelude::*;
-
 use crate::{
     consts::POSITION_Z,
     events::TransformEvent,
     state::{AppState, LoaderState},
 };
+use bevy::prelude::*;
 
 #[derive(Component)]
 struct Background;
@@ -13,7 +12,7 @@ static SCALE: f32 = 1.05;
 
 fn add_background(mut commands: Commands, loader: ResMut<LoaderState>) {
     commands
-        .spawn_bundle(SpriteBundle {
+        .spawn(SpriteBundle {
             texture: loader.background_image.clone(),
             transform: Transform::from_xyz(0.0, 0.0, POSITION_Z.background)
                 .with_scale(Vec3::splat(SCALE)),

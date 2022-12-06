@@ -1,11 +1,10 @@
-use bevy::prelude::*;
-
 use crate::{
     consts::{POSITION_Z, WINDOW_SIZE},
     enemies::EnemyCount,
     events::EnemiesLeftEvent,
     state::{AppState, LoaderState},
 };
+use bevy::prelude::*;
 
 #[derive(Component)]
 struct EnemiesLeftText;
@@ -24,7 +23,7 @@ fn add_enemies_left_text(
     let enemy_count = enemy_count_query.single();
 
     commands
-        .spawn_bundle(Text2dBundle {
+        .spawn(Text2dBundle {
             text: Text {
                 sections: vec![
                     TextSection {

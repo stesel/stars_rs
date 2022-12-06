@@ -1,11 +1,10 @@
-use bevy::{
-    diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin},
-    prelude::*,
-};
-
 use crate::{
     consts::{POSITION_Z, WINDOW_SIZE},
     state::{AppState, LoaderState},
+};
+use bevy::{
+    diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin},
+    prelude::*,
 };
 
 #[derive(Component)]
@@ -19,7 +18,7 @@ fn add_fps_text(mut commands: Commands, loader: Res<LoaderState>) {
     };
 
     commands
-        .spawn_bundle(Text2dBundle {
+        .spawn(Text2dBundle {
             text: Text {
                 sections: vec![
                     TextSection {

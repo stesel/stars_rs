@@ -7,6 +7,7 @@ pub enum AppState {
     Menu,
 }
 
+#[derive(Resource)]
 pub struct LoaderState {
     pub background_image: Handle<Image>,
     pub enemy_image: Handle<Image>,
@@ -22,15 +23,15 @@ pub struct LoaderState {
 impl LoaderState {
     pub fn ids(&self) -> Vec<HandleId> {
         vec![
-            self.background_image.id,
-            self.character_image.id,
-            self.explosion_image.id,
-            self.aim_image.id,
-            self.button_sound.id,
-            self.bullet_sound.id,
-            self.collision_sound.id,
-            self.explosion_sound.id,
-            self.font.id,
+            self.background_image.id(),
+            self.character_image.id(),
+            self.explosion_image.id(),
+            self.aim_image.id(),
+            self.button_sound.id(),
+            self.bullet_sound.id(),
+            self.collision_sound.id(),
+            self.explosion_sound.id(),
+            self.font.id(),
         ]
     }
 }

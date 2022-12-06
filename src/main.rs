@@ -24,8 +24,7 @@ use bevy::prelude::*;
 
 fn main() {
     App::new()
-        .add_plugin(window::WindowPlugin)
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(window::get_window_pluggin()))
         .add_plugin(app::AppPlugin)
         .add_plugin(events::EventsPlugin)
         .add_plugin(camera::CameraPlugin)
